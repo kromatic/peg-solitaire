@@ -91,10 +91,6 @@ validLoc (x, y) = 0 <= x && x < 7 && 0 <= y && y < 7
 solved : Board -> Bool
 solved = (==) target
 
--- check if a board is valid (for debugging)
-valid : Board -> Bool
-valid = always True
-
 {- A variant of the game is to start with a hole in (x, y) and end with a
    single peg in (x', y'). randomBoard will return a pair of (start, end) boards
    arranged in this way, making sure that it admits a solution
