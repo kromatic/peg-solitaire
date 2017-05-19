@@ -4,10 +4,11 @@ import PegLogic exposing (..)
 import Html exposing (..)
 import Html.Events exposing (onClick)
 import Html.Attributes
-import Collage
-import Element
+import Element exposing (..)
+import Collage exposing (..)
 import Color exposing (..)
-import Array
+import Array exposing (..)
+import Keyboard exposing (..)
 
 -- MODEL
 
@@ -22,18 +23,22 @@ type Msg = Noop | Reset | PegSelect Loc | EmptySelect Loc
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = case (model.pegSelected, msg) of
-  (_, Noop) -> model
+  (_, Noop) -> (model, Cmd.none)
   (_, Reset) -> init
-  (_, PegSelect loc) -> { model | pegSelected = Just loc }
-  (Nothing, EmptySelect loc) -> model
+  (_, PegSelect loc) -> ({ model | pegSelected = Just loc }, Cmd.none)
+  (Nothing, EmptySelect loc) -> (model, Cmd.none)
   (Just loc1, EmptySelect loc2) ->
     let
+      move = (loc1, loc2)
       model1 =
-        { board = makeMove (loc1, loc2) model.board
-        , pegSelected = Nothing
-        }
+        if validMove move model.board then
+          { board = makeMove (loc1, loc2) model.board
+          , pegSelected = Nothing
+          }
+        else
+          model
     in
-      if model1.board == target then init else model1
+      if model1.board == target then init else (model1, Cmd.none)
 
 -- VIEW
 
@@ -49,11 +54,12 @@ view model =
         , ("transform", "translate(-50%, -50%)")
         ]
   in
-    Html.div [style] [table]
+    div [style] [table]
 
 tableView : Model -> Html Msg
-tableView model = let cells = tableCells model.board |> setSelection model.pegSelected in
-  Array.map (Array.toList >> tr []) cells |> toList |> table []
+tableView model =
+  let cells = tableCells model.board |> setSelection model.pegSelected in
+    Array.map (Array.toList >> tr []) cells |> toList |> table []
 
 setSelection : (Maybe Loc) -> Array (Array (Html Msg)) -> Array (Array (Html Msg))
 setSelection pegSelected cells = case pegSelected of
@@ -69,17 +75,19 @@ rowCells i row =
   Array.indexedMap (spaceCell i) row
 
 spaceCell : Int -> Int -> Space -> Html Msg
-spaceCell i j s -> case s of
+spaceCell i j s = case s of
   None  -> td [] []
-  Empty -> [[circle 10 |> filled black] |> collage 20 20 |> toHtml]
-           |> td [onClick (EmptySelect (i, j))]
-  Peg   -> [[circle 10 |> filled red] |> collage 20 20 |> toHtml]
-           |> td [onClick (PegSelect (i, j))]
+  Empty -> [circleEmpty] |> td [onClick (EmptySelect (i, j))]
+  Peg   -> [circlePeg] |> td [onClick (PegSelect (i, j))]
+
+circleEmpty = [circle 20 |> filled black] |> collage 40 40 |> toHtml
+circlePeg = [circle 20 |> filled red] |> collage 40 40 |> toHtml
+circleSelected = [circle 20 |> filled green] |> collage 40 40 |> toHtml
 
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
-subscriptions = always (Keyboard.downs (\x -> Reset if x == 27 else Noop))
+subscriptions = always (downs (\x -> if x == 27 then Reset else Noop))
 
 -- INIT
 
@@ -90,7 +98,7 @@ init = ({ board = start, pegSelected = Nothing }, Cmd.none)
 
 main : Program Never Model Msg
 main =
-  Html.program <|
+  program <|
     { init = init
     , view = view
     , update = update

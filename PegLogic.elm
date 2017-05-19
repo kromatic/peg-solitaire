@@ -1,12 +1,10 @@
-module PegLogic exposing (Board, start, target, makeMove)
+module PegLogic exposing (Board(..), Space(..), Loc, start, target, makeMove, validMove, fget)
 
 import Array exposing (..)
 
 type Space = Peg | Empty | None
 
 type alias Loc = (Int, Int)
-
-
 
 type alias Move = (Loc, Loc)
 
@@ -33,11 +31,11 @@ target =
 
 -- make a (valid) move
 makeMove : Move -> Board -> Board
-makeMove move board =
-  let (mid, end) = moveLocs move in
-    board |> clear (Tuple.first move) |> clear mid |> putPeg end
+makeMove (start, end) board =
+  let mid = avgLoc start end in
+    board |> clear start |> clear mid |> putPeg end
 
-validMoves : Loc -> Board -> List Move
+{-validMoves : Loc -> Board -> List Move
 validMoves loc board =
   if not (validLoc loc && hasPeg loc board) then
     []
@@ -47,19 +45,19 @@ validMoves loc board =
       , (loc, R)
       , (loc, U)
       , (loc, D)
-      ]
+      ]-}
 
 validMove : Move -> Board -> Bool
-validMove move board =
-  let (mid, end) = moveLocs move in
-    validLoc end && hasPeg mid board && isEmpty end board
+validMove (start, end) board =
+  let mid = avgLoc start end in
+    validLoc end && validDiff start end && hasPeg mid board && isEmpty end board
 
-moveLocs : Move -> (Loc, Loc)
-moveLocs ((x, y), dir) = case dir of
-  L -> ((x, y - 1), (x, y - 2))
-  R -> ((x, y + 1), (x, y + 2))
-  U -> ((x - 1, y), (x - 2, y))
-  D -> ((x + 1, y), (x + 2, y))
+avgLoc (x, y) (z, w) = ((x + z) // 2, (y + w) // 2)
+
+validDiff (x, y) (x1, y1) =
+  if x - x1 == 0 then abs (y - y1) == 2
+  else if y - y1 == 0 then abs (x - x1) == 2
+  else False
 
 fget : Int -> Array a -> a
 fget i arr = case get i arr of
@@ -86,10 +84,6 @@ putPeg loc board = setSpace loc Peg board
 
 validLoc : Loc -> Bool
 validLoc (x, y) = 0 <= x && x < 7 && 0 <= y && y < 7
-
--- check if the given board equals the target board
-solved : Board -> Bool
-solved = (==) target
 
 {- A variant of the game is to start with a hole in (x, y) and end with a
    single peg in (x', y'). randomBoard will return a pair of (start, end) boards
