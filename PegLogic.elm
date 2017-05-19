@@ -1,4 +1,4 @@
-module PegLogic exposing (Board, start, target, makeMove, validMoves, solved)
+module PegLogic exposing (Board, start, target, makeMove)
 
 import Array exposing (..)
 
@@ -6,9 +6,9 @@ type Space = Peg | Empty | None
 
 type alias Loc = (Int, Int)
 
-type Dir = L | R | U | D
 
-type alias Move = (Loc, Dir)
+
+type alias Move = (Loc, Loc)
 
 type Board = Board (Array (Array Space))
 
