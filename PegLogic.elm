@@ -1,4 +1,12 @@
-module PegLogic exposing (Board(..), Space(..), Loc, start, target, makeMove, validMove, fget)
+module PegLogic exposing ( Board(..)
+                         , Space(..)
+                         , Loc
+                         , Move
+                         , initializeGame
+                         , makeMove
+                         , validMove
+                         , fget
+                         )
 
 import Array exposing (..)
 
@@ -9,6 +17,10 @@ type alias Loc = (Int, Int)
 type alias Move = (Loc, Loc)
 
 type Board = Board (Array (Array Space))
+
+-- initalize a random game with pair of start and target boards
+initializeGame : () -> (Board, Board)
+initializeGame _ = (start, target)
 
 -- standard starting and target boards (English variant)
 start : Board
@@ -29,28 +41,20 @@ target =
   in
     Board <| fromList [short, short, long, mid, long, short, short]
 
--- make a (valid) move
+-- make a move, assuming it is valid
 makeMove : Move -> Board -> Board
 makeMove (start, end) board =
   let mid = avgLoc start end in
     board |> clear start |> clear mid |> putPeg end
 
-{-validMoves : Loc -> Board -> List Move
-validMoves loc board =
-  if not (validLoc loc && hasPeg loc board) then
-    []
-  else
-    List.filter (board |> flip validMove) <|
-      [ (loc, L)
-      , (loc, R)
-      , (loc, U)
-      , (loc, D)
-      ]-}
-
 validMove : Move -> Board -> Bool
 validMove (start, end) board =
   let mid = avgLoc start end in
-    validLoc end && validDiff start end && hasPeg mid board && isEmpty end board
+    (  validLoc end
+    && validDiff start end
+    && hasPeg mid board
+    && isEmpty end board
+    )
 
 avgLoc (x, y) (z, w) = ((x + z) // 2, (y + w) // 2)
 
@@ -84,9 +88,3 @@ putPeg loc board = setSpace loc Peg board
 
 validLoc : Loc -> Bool
 validLoc (x, y) = 0 <= x && x < 7 && 0 <= y && y < 7
-
-{- A variant of the game is to start with a hole in (x, y) and end with a
-   single peg in (x', y'). randomBoard will return a pair of (start, end) boards
-   arranged in this way, making sure that it admits a solution
--}
-randomBoard = identity

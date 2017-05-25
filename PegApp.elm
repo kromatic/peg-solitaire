@@ -15,30 +15,51 @@ import Keyboard exposing (..)
 type alias Model =
   { board : Board
   , pegSelected : Maybe Loc
+  , history : List Board
+  , target : Board
   }
 
 -- UPDATE
 
-type Msg = Noop | Reset | PegSelect Loc | EmptySelect Loc
+type Msg = Noop | Reset | Undo | PegSelect Loc | EmptySelect Loc
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model = case (model.pegSelected, msg) of
   (_, Noop) -> (model, Cmd.none)
   (_, Reset) -> init
+  (_, Undo)  -> modelUndo model
   (_, PegSelect loc) -> ({ model | pegSelected = Just loc }, Cmd.none)
   (Nothing, EmptySelect loc) -> (model, Cmd.none)
-  (Just loc1, EmptySelect loc2) ->
+  (Just loc1, EmptySelect loc2) -> let move = (loc1, loc2) in
+    if validMove move model.board then
+      modelMakeMove move model
+    else
+      (model, Cmd.none)
+
+modelUndo : Model -> (Model, Cmd Msg)
+modelUndo model = case model.history of
+  []         -> (model, Cmd.none)
+  prev::rest ->
     let
-      move = (loc1, loc2)
-      model1 =
-        if validMove move model.board then
-          { board = makeMove (loc1, loc2) model.board
-          , pegSelected = Nothing
-          }
-        else
-          model
+      newModel = { model
+                 | board = prev
+                 , pegSelected = Nothing
+                 , history = rest
+                 }
     in
-      if model1.board == target then init else (model1, Cmd.none)
+      (newModel, Cmd.none)
+
+modelMakeMove : Move -> Model -> (Model, Cmd Msg)
+modelMakeMove move model =
+    let
+      modelNew =
+          { model
+          | board = makeMove move model.board
+          , pegSelected = Nothing
+          , history = model.board :: model.history
+          }
+    in
+      if modelNew.board == model.target then init else (modelNew, Cmd.none)
 
 -- VIEW
 
@@ -80,7 +101,7 @@ spaceCell i j s = case s of
   Empty -> [circleEmpty] |> td [onClick (EmptySelect (i, j))]
   Peg   -> [circlePeg] |> td [onClick (PegSelect (i, j))]
 
-circleEmpty = [circle 20 |> filled black] |> collage 40 40 |> toHtml
+circleEmpty = [circle 10 |> filled black] |> collage 40 40 |> toHtml
 circlePeg = [circle 20 |> filled red] |> collage 40 40 |> toHtml
 circleSelected = [circle 20 |> filled green] |> collage 40 40 |> toHtml
 
@@ -92,7 +113,13 @@ subscriptions = always (downs (\x -> if x == 27 then Reset else Noop))
 -- INIT
 
 init : (Model, Cmd Msg)
-init = ({ board = start, pegSelected = Nothing }, Cmd.none)
+init = let (start, target) = initializeGame () in
+  ({ board = start
+   , pegSelected = Nothing
+   , history = []
+   , target = target }
+  , Cmd.none
+  )
 
 -- MAIN
 
