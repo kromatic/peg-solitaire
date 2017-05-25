@@ -12006,6 +12006,7 @@ var _user$project$PegApp$init = function () {
 		_1: _elm_lang$core$Platform_Cmd$none
 	};
 }();
+var _user$project$PegApp$subscriptions = _elm_lang$core$Basics$always(_elm_lang$core$Platform_Sub$none);
 var _user$project$PegApp$circleSelected = _evancz$elm_graphics$Element$toHtml(
 	A3(
 		_evancz$elm_graphics$Collage$collage,
@@ -12015,7 +12016,7 @@ var _user$project$PegApp$circleSelected = _evancz$elm_graphics$Element$toHtml(
 			ctor: '::',
 			_0: A2(
 				_evancz$elm_graphics$Collage$filled,
-				_elm_lang$core$Color$green,
+				_elm_lang$core$Color$darkRed,
 				_evancz$elm_graphics$Collage$circle(20)),
 			_1: {ctor: '[]'}
 		}));
@@ -12028,7 +12029,7 @@ var _user$project$PegApp$circlePeg = _evancz$elm_graphics$Element$toHtml(
 			ctor: '::',
 			_0: A2(
 				_evancz$elm_graphics$Collage$filled,
-				_elm_lang$core$Color$red,
+				_elm_lang$core$Color$lightRed,
 				_evancz$elm_graphics$Collage$circle(20)),
 			_1: {ctor: '[]'}
 		}));
@@ -12195,6 +12196,8 @@ var _user$project$PegApp$tableView = function (model) {
 				},
 				cells)));
 };
+var _user$project$PegApp$Undo = {ctor: 'Undo'};
+var _user$project$PegApp$Reset = {ctor: 'Reset'};
 var _user$project$PegApp$view = function (model) {
 	var style = _elm_lang$html$Html_Attributes$style(
 		{
@@ -12214,6 +12217,30 @@ var _user$project$PegApp$view = function (model) {
 				}
 			}
 		});
+	var undoButton = A2(
+		_elm_lang$html$Html$button,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onClick(_user$project$PegApp$Undo),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text('Undo'),
+			_1: {ctor: '[]'}
+		});
+	var resetButton = A2(
+		_elm_lang$html$Html$button,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onClick(_user$project$PegApp$Reset),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text('Reset'),
+			_1: {ctor: '[]'}
+		});
 	var table = _user$project$PegApp$tableView(model);
 	return A2(
 		_elm_lang$html$Html$div,
@@ -12225,19 +12252,20 @@ var _user$project$PegApp$view = function (model) {
 		{
 			ctor: '::',
 			_0: table,
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: resetButton,
+				_1: {
+					ctor: '::',
+					_0: undoButton,
+					_1: {ctor: '[]'}
+				}
+			}
 		});
 };
-var _user$project$PegApp$Undo = {ctor: 'Undo'};
-var _user$project$PegApp$Reset = {ctor: 'Reset'};
-var _user$project$PegApp$Noop = {ctor: 'Noop'};
-var _user$project$PegApp$subscriptions = _elm_lang$core$Basics$always(
-	_elm_lang$keyboard$Keyboard$downs(
-		function (x) {
-			return _elm_lang$core$Native_Utils.eq(x, 27) ? _user$project$PegApp$Reset : _user$project$PegApp$Noop;
-		}));
 var _user$project$PegApp$main = _elm_lang$html$Html$program(
 	{init: _user$project$PegApp$init, view: _user$project$PegApp$view, update: _user$project$PegApp$update, subscriptions: _user$project$PegApp$subscriptions})();
+var _user$project$PegApp$Noop = {ctor: 'Noop'};
 var Elm = {};
 Elm['PegApp'] = Elm['PegApp'] || {};
 if (typeof _user$project$PegApp$main !== 'undefined') {

@@ -9,6 +9,7 @@ import Collage exposing (..)
 import Color exposing (..)
 import Array exposing (..)
 import Keyboard exposing (..)
+import Platform.Sub
 
 -- MODEL
 
@@ -67,6 +68,8 @@ view : Model -> Html Msg
 view model =
   let
     table = tableView model
+    resetButton = button [onClick Reset] [Html.text "Reset"]
+    undoButton = button [onClick Undo] [Html.text "Undo"]
     style =
       Html.Attributes.style <|
         [ ("position", "fixed")
@@ -75,7 +78,7 @@ view model =
         , ("transform", "translate(-50%, -50%)")
         ]
   in
-    div [style] [table]
+    div [style] [table, resetButton, undoButton]
 
 tableView : Model -> Html Msg
 tableView model =
@@ -102,13 +105,13 @@ spaceCell i j s = case s of
   Peg   -> [circlePeg] |> td [onClick (PegSelect (i, j))]
 
 circleEmpty = [circle 10 |> filled black] |> collage 40 40 |> toHtml
-circlePeg = [circle 20 |> filled red] |> collage 40 40 |> toHtml
-circleSelected = [circle 20 |> filled green] |> collage 40 40 |> toHtml
+circlePeg = [circle 20 |> filled lightRed] |> collage 40 40 |> toHtml
+circleSelected = [circle 20 |> filled darkRed] |> collage 40 40 |> toHtml
 
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
-subscriptions = always (downs (\x -> if x == 27 then Reset else Noop))
+subscriptions = always Platform.Sub.none
 
 -- INIT
 
