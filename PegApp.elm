@@ -2,13 +2,11 @@ module PegApp exposing (main)
 
 import PegLogic exposing (..)
 import Html exposing (..)
-import Html.Events exposing (onClick)
-import Html.Attributes
+import Html.Events exposing (..)
+import Html.Attributes exposing (..)
 import Element exposing (..)
 import Collage exposing (..)
 import Color exposing (..)
-import Array exposing (..)
-import Keyboard exposing (..)
 import Platform.Sub
 
 -- MODEL

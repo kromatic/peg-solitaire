@@ -1,11 +1,7 @@
-module PegLogic exposing ( Board(..)
-                         , Space(..)
-                         , Loc
-                         , Move
+module PegLogic exposing ( Game
                          , initializeGame
+                         , selectPeg
                          , makeMove
-                         , validMove
-                         , fget
                          )
 
 import Array exposing (..)
@@ -16,52 +12,98 @@ type alias Loc = (Int, Int)
 
 type alias Move = (Loc, Loc)
 
-type Board = Board (Array (Array Space))
+type alias Board = Array (Array Space)
 
--- initalize a random game with pair of start and target boards
-initializeGame : () -> (Board, Board)
-initializeGame _ = (start, target)
+type alias Game = { board : Board
+                  , pegSelected : Maybe Loc
+                  , validMoves : List Move
+                  , target : Loc
+                  , solved : Bool
+                  }
 
--- standard starting and target boards (English variant)
-start : Board
-start =
+-- initalize a random game
+initializeGame : Int -> Game
+initializeGame n =
   let
-    short = fromList [None, None, Peg, Peg, Peg, None, None]
-    long = initialize 7 (always Peg)
-    mid = set 3 Empty long
+    target = getLoc n
+    board = initBoard Peg |> clear target
   in
-    Board <| fromList [short, short, long, mid, long, short, short]
+    { board = board
+    , pegSelected = Nothing
+    , validMoves = []
+    , target = target
+    , solved = False
+    }
 
-target : Board
-target =
+-- board completely filled with pegs
+full : Board
+full = initBoard Peg
+
+-- board completely empty
+empty : Board
+empty = initBoard Empty
+
+-- a peg solitaire board completely filled with s (used with s = Empty or Peg)
+initBoard : Space -> Board
+initBoard s =
   let
-    short = fromList [None, None, Empty, Empty, Empty, None, None]
-    long = initialize 7 (always Empty)
-    mid = set 3 Peg long
+    short = fromList [None, None, s, s, s, None, None]
+    long = repeat 7 s
   in
-    Board <| fromList [short, short, long, mid, long, short, short]
+    fromList [short, short, long, long, long, short, short]
 
--- make a move, assuming it is valid
-makeMove : Move -> Board -> Board
-makeMove (start, end) board =
-  let mid = avgLoc start end in
-    board |> clear start |> clear mid |> putPeg end
+-- convert an integer into a location on the actual board
+getLoc : Int -> Loc
+getLoc n =
+  if 0 <= n && n < 3        then (0, n + 2)
+  else if 3 <= n && n < 6   then (1, n - 1)
+  else if 6 <= n && n < 13  then (2, n - 6)
+  else if 13 <= n && n < 19 then (3, n - 13)
+  else if 20 <= n && n < 27 then (4, n - 20)
+  else if 27 <= n && n < 30 then (5, n - 25)
+  else if 30 <= n && n < 33 then (6, n - 28)
+  else Debug.crash "getLoc: invalid int"
+
+-- make a (valid) move
+makeMove : Move -> Game -> Game
+makeMove (mid, end) game =
+  let
+    start = case game.pegSelected of
+      Nothing  -> Debug.crash "makeMove: no peg selected"
+      Just loc -> loc
+    boardNew = game.board |> clear start |> clear mid |> putPeg end
+  in
+    { game
+    | board = boardNew
+    , pegSelected = Nothing
+    , validMoves = []
+    , solved = solvedPuzzle boardNew game.target
+    }
+
+-- check if we have reached the target board
+solvedPuzzle : Board -> Loc -> Bool
+solvedPuzzle board target = board == (empty |> putPeg target)
+
+-- select a peg on the board, creating a list of valid moves
+selectPeg : Loc -> Game -> Game
+selectPeg loc game =
+  { game
+  | pegSelected = Just loc
+  , validMoves = getValidMoves loc game.board
+  }
+
+getValidMoves : Loc -> Board -> List Move
+getValidMoves (x, y) board =
+  List.filter (\move -> validMove move board) <|
+    [ ((x, y - 1), (x, y - 2))
+    , ((x - 1, y), (x - 2, y))
+    , ((x, y + 1), (x, y + 2))
+    , ((x + 1, y), (x + 2, y))
+    ]
 
 validMove : Move -> Board -> Bool
-validMove (start, end) board =
-  let mid = avgLoc start end in
-    (  validLoc end
-    && validDiff start end
-    && hasPeg mid board
-    && isEmpty end board
-    )
-
-avgLoc (x, y) (z, w) = ((x + z) // 2, (y + w) // 2)
-
-validDiff (x, y) (x1, y1) =
-  if x - x1 == 0 then abs (y - y1) == 2
-  else if y - y1 == 0 then abs (x - x1) == 2
-  else False
+validMove (mid, end) board =
+  validLoc end && isEmpty end board && hasPeg mid board
 
 fget : Int -> Array a -> a
 fget i arr = case get i arr of
@@ -69,7 +111,7 @@ fget i arr = case get i arr of
   Nothing  -> Debug.crash "fget: invalid index"
 
 getSpace : Loc -> Board -> Space
-getSpace (x, y) (Board m) = fget y (fget x m)
+getSpace (x, y) board = fget y (fget x board)
 
 hasPeg : Loc -> Board -> Bool
 hasPeg loc board = (getSpace loc board) == Peg
@@ -78,7 +120,7 @@ isEmpty : Loc -> Board -> Bool
 isEmpty loc board = (getSpace loc board) == Empty
 
 setSpace : Loc -> Space -> Board -> Board
-setSpace (x, y) s (Board m) = set x (set y s (fget x m)) m |> Board
+setSpace (x, y) s board = set x (set y s (fget x board)) board
 
 clear : Loc -> Board -> Board
 clear loc board = setSpace loc Empty board
