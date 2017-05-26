@@ -1,8 +1,13 @@
-module PegLogic exposing ( Game
-                         , initializeGame
-                         , selectPeg
-                         , makeMove
-                         )
+module PegLogic exposing
+  ( Game
+  , Move
+  , Loc
+  , initGame
+  , selectPeg
+  , makeMove
+  , undoMove
+  , resetGame
+  )
 
 import Array exposing (..)
 
@@ -12,40 +17,48 @@ type alias Loc = (Int, Int)
 
 type alias Move = (Loc, Loc)
 
-type alias Board = Array (Array Space)
+type alias Grid = Array (Array Space)
 
-type alias Game = { board : Board
-                  , pegSelected : Maybe Loc
-                  , validMoves : List Move
-                  , target : Loc
-                  , solved : Bool
-                  }
+type alias Board =
+  { grid : Grid
+  , pegSelected : Maybe Loc
+  , validMoves : List Move
+  }
+
+type alias Game =
+  { board : Board
+  , target : Grid
+  , solved : Bool
+  , history : List Board
+  , original : Board
+  }
 
 -- initalize a random game
-initializeGame : Int -> Game
-initializeGame n =
+initGame : Int -> Game
+initGame n =
   let
-    target = getLoc n
-    board = initBoard Peg |> clear target
+    targetLoc = getLoc n
+    grid = full |> clear targetLoc
+    board = { grid = grid, pegSelected = Nothing, validMoves = [] }
   in
     { board = board
-    , pegSelected = Nothing
-    , validMoves = []
-    , target = target
+    , target = empty |> putPeg targetLoc
     , solved = False
+    , history = []
+    , original = board
     }
 
 -- board completely filled with pegs
-full : Board
-full = initBoard Peg
+full : Grid
+full = initGrid Peg
 
 -- board completely empty
-empty : Board
-empty = initBoard Empty
+empty : Grid
+empty = initGrid Empty
 
 -- a peg solitaire board completely filled with s (used with s = Empty or Peg)
-initBoard : Space -> Board
-initBoard s =
+initGrid : Space -> Grid
+initGrid s =
   let
     short = fromList [None, None, s, s, s, None, None]
     long = repeat 7 s
@@ -64,69 +77,93 @@ getLoc n =
   else if 30 <= n && n < 33 then (6, n - 28)
   else Debug.crash "getLoc: invalid int"
 
--- make a (valid) move
-makeMove : Move -> Game -> Game
-makeMove (mid, end) game =
-  let
-    start = case game.pegSelected of
-      Nothing  -> Debug.crash "makeMove: no peg selected"
-      Just loc -> loc
-    boardNew = game.board |> clear start |> clear mid |> putPeg end
-  in
-    { game
-    | board = boardNew
-    , pegSelected = Nothing
-    , validMoves = []
-    , solved = solvedPuzzle boardNew game.target
-    }
-
--- check if we have reached the target board
-solvedPuzzle : Board -> Loc -> Bool
-solvedPuzzle board target = board == (empty |> putPeg target)
-
--- select a peg on the board, creating a list of valid moves
+-- select a peg on the board, storing the list of valid moves for that peg
 selectPeg : Loc -> Game -> Game
 selectPeg loc game =
-  { game
-  | pegSelected = Just loc
-  , validMoves = getValidMoves loc game.board
-  }
+  let
+    board = game.board
+    boardNew =
+      { board
+      | pegSelected = Just loc
+      , validMoves = getValidMoves loc game.board.grid
+      }
+  in
+    { game | board = boardNew }
 
-getValidMoves : Loc -> Board -> List Move
-getValidMoves (x, y) board =
-  List.filter (\move -> validMove move board) <|
+getValidMoves : Loc -> Grid -> List Move
+getValidMoves (x, y) grid =
+  List.filter (\move -> validMove move grid) <|
     [ ((x, y - 1), (x, y - 2))
     , ((x - 1, y), (x - 2, y))
     , ((x, y + 1), (x, y + 2))
     , ((x + 1, y), (x + 2, y))
     ]
 
-validMove : Move -> Board -> Bool
-validMove (mid, end) board =
-  validLoc end && isEmpty end board && hasPeg mid board
+validMove : Move -> Grid -> Bool
+validMove (mid, end) grid =
+  validLoc end && isEmpty end grid && hasPeg mid grid
+
+-- make a (valid) move
+makeMove : Move -> Game -> Game
+makeMove (mid, end) game =
+  let
+    start = case game.board.pegSelected of
+      Nothing  -> Debug.crash "makeMove: no peg selected"
+      Just loc -> loc
+    gridNew = game.board.grid |> clear start |> clear mid |> putPeg end
+    boardNew = { grid = gridNew, pegSelected = Nothing, validMoves = [] }
+  in
+    { game
+    | board = boardNew
+    , solved = gridNew == game.target
+    , history = boardNew :: game.history
+    }
+
+-- helper functions to selectPeg and makeMove
 
 fget : Int -> Array a -> a
 fget i arr = case get i arr of
   Just val -> val
   Nothing  -> Debug.crash "fget: invalid index"
 
-getSpace : Loc -> Board -> Space
-getSpace (x, y) board = fget y (fget x board)
+getSpace : Loc -> Grid -> Space
+getSpace (x, y) grid = fget y (fget x grid)
 
-hasPeg : Loc -> Board -> Bool
-hasPeg loc board = (getSpace loc board) == Peg
+hasPeg : Loc -> Grid -> Bool
+hasPeg loc grid = (getSpace loc grid) == Peg
 
-isEmpty : Loc -> Board -> Bool
-isEmpty loc board = (getSpace loc board) == Empty
+isEmpty : Loc -> Grid -> Bool
+isEmpty loc grid = (getSpace loc grid) == Empty
 
-setSpace : Loc -> Space -> Board -> Board
-setSpace (x, y) s board = set x (set y s (fget x board)) board
+setSpace : Loc -> Space -> Grid -> Grid
+setSpace (x, y) s grid = set x (set y s (fget x grid)) grid
 
-clear : Loc -> Board -> Board
-clear loc board = setSpace loc Empty board
+clear : Loc -> Grid -> Grid
+clear loc grid = setSpace loc Empty grid
 
-putPeg : Loc -> Board -> Board
-putPeg loc board = setSpace loc Peg board
+putPeg : Loc -> Grid -> Grid
+putPeg loc grid = setSpace loc Peg grid
 
 validLoc : Loc -> Bool
 validLoc (x, y) = 0 <= x && x < 7 && 0 <= y && y < 7
+
+-- undo move
+undoMove : Game -> Game
+undoMove game =
+  case game.history of
+    []           -> game
+    (prev::rest) ->
+      { game
+      | board = prev
+      , solved = False
+      , history = rest
+      }
+
+-- reset game
+resetGame : Game -> Game
+resetGame game =
+  { game
+  | board = game.original
+  , solved = False
+  , history = []
+  }

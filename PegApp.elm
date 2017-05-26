@@ -6,68 +6,38 @@ import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import Element exposing (..)
 import Collage exposing (..)
+import Text exposing (..)
 import Color exposing (..)
-import Platform.Sub
+import Platform.Sub exposing (..)
 
 -- MODEL
 
-type alias Model =
-  { board : Board
-  , pegSelected : Maybe Loc
-  , history : List Board
-  , target : Board
-  }
+type alias Model = { game : Game , rules : Bool }
 
 -- UPDATE
 
-type Msg = Noop | Reset | Undo | PegSelect Loc | EmptySelect Loc
+type Msg = NewGame | SelectPeg Loc | SelectMove Move | Undo | Reset | Rules
 
 update : Msg -> Model -> (Model, Cmd Msg)
-update msg model = case (model.pegSelected, msg) of
-  (_, Noop) -> (model, Cmd.none)
-  (_, Reset) -> init
-  (_, Undo)  -> modelUndo model
-  (_, PegSelect loc) -> ({ model | pegSelected = Just loc }, Cmd.none)
-  (Nothing, EmptySelect loc) -> (model, Cmd.none)
-  (Just loc1, EmptySelect loc2) -> let move = (loc1, loc2) in
-    if validMove move model.board then
-      modelMakeMove move model
-    else
-      (model, Cmd.none)
-
-modelUndo : Model -> (Model, Cmd Msg)
-modelUndo model = case model.history of
-  []         -> (model, Cmd.none)
-  prev::rest ->
-    let
-      newModel = { model
-                 | board = prev
-                 , pegSelected = Nothing
-                 , history = rest
-                 }
-    in
-      (newModel, Cmd.none)
-
-modelMakeMove : Move -> Model -> (Model, Cmd Msg)
-modelMakeMove move model =
-    let
-      modelNew =
-          { model
-          | board = makeMove move model.board
-          , pegSelected = Nothing
-          , history = model.board :: model.history
-          }
-    in
-      if modelNew.board == model.target then init else (modelNew, Cmd.none)
+update msg model =
+  case msg of
+    NewGame         -> (model, initRandom)
+    SelectPeg loc   -> ({ model | selectPeg loc model.game }, Cmd.none)
+    SelectMove move -> ({ model | makeMove move model.game }, Cmd.none)
+    Undo            -> ({ model | undoMove model.game }, Cmd.none)
+    Reset           -> ({ model | resetGame model.game }, Cmd.none)
+    Rules           -> ({ model | rules = not model.rules })
 
 -- VIEW
 
 view : Model -> Html Msg
 view model =
   let
-    table = tableView model
-    resetButton = button [onClick Reset] [Html.text "Reset"]
+    gameView = viewGame model.game
     undoButton = button [onClick Undo] [Html.text "Undo"]
+    resetButton = button [onClick Reset] [Html.text "Reset"]
+    newGameButton = button [onclick NewGame] [Html.text "New Game"]
+    rulesButton = button [onclick Rules] [Html.text "Show Rules"]
     style =
       Html.Attributes.style <|
         [ ("position", "fixed")
@@ -76,9 +46,9 @@ view model =
         , ("transform", "translate(-50%, -50%)")
         ]
   in
-    div [style] [table, resetButton, undoButton]
+    div [style] [table, undoButton, resetButton, newGameButton, rulesButton]
 
-tableView : Model -> Html Msg
+view : Model -> Html Msg
 tableView model =
   let cells = tableCells model.board |> setSelection model.pegSelected in
     Array.map (Array.toList >> tr []) cells |> toList |> table []
@@ -109,7 +79,7 @@ circleSelected = [circle 20 |> filled darkRed] |> collage 40 40 |> toHtml
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
-subscriptions = always Platform.Sub.none
+subscriptions = always none
 
 -- INIT
 
