@@ -11822,7 +11822,7 @@ var _user$project$PegLogic$setSpace = F3(
 			grid);
 	});
 var _user$project$PegLogic$getLoc = function (n) {
-	return ((_elm_lang$core$Native_Utils.cmp(0, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 3) < 0)) ? {ctor: '_Tuple2', _0: 0, _1: n + 2} : (((_elm_lang$core$Native_Utils.cmp(3, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 6) < 0)) ? {ctor: '_Tuple2', _0: 1, _1: n - 1} : (((_elm_lang$core$Native_Utils.cmp(6, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 13) < 0)) ? {ctor: '_Tuple2', _0: 2, _1: n - 6} : (((_elm_lang$core$Native_Utils.cmp(13, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 19) < 0)) ? {ctor: '_Tuple2', _0: 3, _1: n - 13} : (((_elm_lang$core$Native_Utils.cmp(20, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 27) < 0)) ? {ctor: '_Tuple2', _0: 4, _1: n - 20} : (((_elm_lang$core$Native_Utils.cmp(27, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 30) < 0)) ? {ctor: '_Tuple2', _0: 5, _1: n - 25} : (((_elm_lang$core$Native_Utils.cmp(30, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 33) < 0)) ? {ctor: '_Tuple2', _0: 6, _1: n - 28} : _elm_lang$core$Native_Utils.crash(
+	return ((_elm_lang$core$Native_Utils.cmp(0, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 3) < 0)) ? {ctor: '_Tuple2', _0: 0, _1: n + 2} : (((_elm_lang$core$Native_Utils.cmp(3, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 6) < 0)) ? {ctor: '_Tuple2', _0: 1, _1: n - 1} : (((_elm_lang$core$Native_Utils.cmp(6, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 13) < 0)) ? {ctor: '_Tuple2', _0: 2, _1: n - 6} : (((_elm_lang$core$Native_Utils.cmp(13, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 20) < 0)) ? {ctor: '_Tuple2', _0: 3, _1: n - 13} : (((_elm_lang$core$Native_Utils.cmp(20, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 27) < 0)) ? {ctor: '_Tuple2', _0: 4, _1: n - 20} : (((_elm_lang$core$Native_Utils.cmp(27, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 30) < 0)) ? {ctor: '_Tuple2', _0: 5, _1: n - 25} : (((_elm_lang$core$Native_Utils.cmp(30, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 33) < 0)) ? {ctor: '_Tuple2', _0: 6, _1: n - 28} : _elm_lang$core$Native_Utils.crash(
 		'PegLogic',
 		{
 			start: {line: 89, column: 8},
@@ -12074,26 +12074,9 @@ var _user$project$PegApp$setMatrix = F3(
 				A2(_user$project$PegLogic$fget, _p2, cells)),
 			cells);
 	});
-var _user$project$PegApp$selectedCellTarget = A2(
-	_elm_lang$html$Html$td,
-	{ctor: '[]'},
-	{
-		ctor: '::',
-		_0: _evancz$elm_graphics$Element$toHtml(
-			A3(
-				_evancz$elm_graphics$Collage$collage,
-				40,
-				40,
-				{
-					ctor: '::',
-					_0: A2(
-						_evancz$elm_graphics$Collage$filled,
-						_elm_lang$core$Color$lightGreen,
-						_evancz$elm_graphics$Collage$circle(20)),
-					_1: {ctor: '[]'}
-				})),
-		_1: {ctor: '[]'}
-	});
+var _user$project$PegApp$lineStyle = _elm_lang$core$Native_Utils.update(
+	_evancz$elm_graphics$Collage$defaultLine,
+	{width: 4});
 var _user$project$PegApp$emptyCellTarget = A2(
 	_elm_lang$html$Html$td,
 	{ctor: '[]'},
@@ -12108,9 +12091,43 @@ var _user$project$PegApp$emptyCellTarget = A2(
 					ctor: '::',
 					_0: A2(
 						_evancz$elm_graphics$Collage$filled,
-						_elm_lang$core$Color$darkGreen,
+						_elm_lang$core$Color$black,
 						_evancz$elm_graphics$Collage$circle(10)),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_evancz$elm_graphics$Collage$outlined,
+							_user$project$PegApp$lineStyle,
+							_evancz$elm_graphics$Collage$circle(17)),
+						_1: {ctor: '[]'}
+					}
+				})),
+		_1: {ctor: '[]'}
+	});
+var _user$project$PegApp$selectedCellTarget = A2(
+	_elm_lang$html$Html$td,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: _evancz$elm_graphics$Element$toHtml(
+			A3(
+				_evancz$elm_graphics$Collage$collage,
+				40,
+				40,
+				{
+					ctor: '::',
+					_0: A2(
+						_evancz$elm_graphics$Collage$filled,
+						_elm_lang$core$Color$lightRed,
+						_evancz$elm_graphics$Collage$circle(17)),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_evancz$elm_graphics$Collage$outlined,
+							_user$project$PegApp$lineStyle,
+							_evancz$elm_graphics$Collage$circle(17)),
+						_1: {ctor: '[]'}
+					}
 				})),
 		_1: {ctor: '[]'}
 	});
@@ -12152,7 +12169,7 @@ var _user$project$PegApp$selectedCell = A2(
 					_0: A2(
 						_evancz$elm_graphics$Collage$filled,
 						_elm_lang$core$Color$lightRed,
-						_evancz$elm_graphics$Collage$circle(20)),
+						_evancz$elm_graphics$Collage$circle(17)),
 					_1: {ctor: '[]'}
 				})),
 		_1: {ctor: '[]'}
@@ -12190,6 +12207,48 @@ var _user$project$PegApp$blankCell = A2(
 	_elm_lang$html$Html$td,
 	{ctor: '[]'},
 	{ctor: '[]'});
+var _user$project$PegApp$rules = function () {
+	var txt = _elm_lang$html$Html$text('\n        Welcome to Peg Solitaire! This is a single player puzzle. Pieces on the board,\n        or pegs, are marked with large red circles, and smaller black circles\n        indicate empty spaces. Pegs can jump over adjacent pegs into empty spots,\n        thereby clearing the jumped peg. The objective of the game is to\n        clear the board, except for a single peg in the spot circled black (i.e. the\n        original empty space). This spot remains marked throughout the game for easy\n        reference. To make a move, select a peg by clicking on it. The empty spaces\n        into which the selected peg may be jumped are shown in grey. Click one of\n        these in order to make your move. Good luck!\n        ');
+	var style = _elm_lang$html$Html_Attributes$style(
+		{
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'width', _1: '25%'},
+			_1: {ctor: '[]'}
+		});
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: style,
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: txt,
+			_1: {ctor: '[]'}
+		});
+}();
+var _user$project$PegApp$won = function () {
+	var txt = _elm_lang$html$Html$text('You won!');
+	var style = _elm_lang$html$Html_Attributes$style(
+		{
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'height', _1: '30px'},
+			_1: {ctor: '[]'}
+		});
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: style,
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: txt,
+			_1: {ctor: '[]'}
+		});
+}();
 var _user$project$PegApp$Model = F2(
 	function (a, b) {
 		return {game: a, rules: b};
@@ -12272,9 +12331,16 @@ var _user$project$PegApp$moveCellTarget = function (move) {
 						ctor: '::',
 						_0: A2(
 							_evancz$elm_graphics$Collage$filled,
-							_elm_lang$core$Color$lightGreen,
+							_elm_lang$core$Color$grey,
 							_evancz$elm_graphics$Collage$circle(10)),
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_evancz$elm_graphics$Collage$outlined,
+								_user$project$PegApp$lineStyle,
+								_evancz$elm_graphics$Collage$circle(17)),
+							_1: {ctor: '[]'}
+						}
 					})),
 			_1: {ctor: '[]'}
 		});
@@ -12303,7 +12369,7 @@ var _user$project$PegApp$pegCell = function (loc) {
 						_0: A2(
 							_evancz$elm_graphics$Collage$filled,
 							_elm_lang$core$Color$darkRed,
-							_evancz$elm_graphics$Collage$circle(20)),
+							_evancz$elm_graphics$Collage$circle(17)),
 						_1: {ctor: '[]'}
 					})),
 			_1: {ctor: '[]'}
@@ -12357,9 +12423,16 @@ var _user$project$PegApp$pegCellTarget = function (loc) {
 						ctor: '::',
 						_0: A2(
 							_evancz$elm_graphics$Collage$filled,
-							_elm_lang$core$Color$darkGreen,
-							_evancz$elm_graphics$Collage$circle(20)),
-						_1: {ctor: '[]'}
+							_elm_lang$core$Color$darkRed,
+							_evancz$elm_graphics$Collage$circle(17)),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_evancz$elm_graphics$Collage$outlined,
+								_user$project$PegApp$lineStyle,
+								_evancz$elm_graphics$Collage$circle(17)),
+							_1: {ctor: '[]'}
+						}
 					})),
 			_1: {ctor: '[]'}
 		});
@@ -12385,8 +12458,8 @@ var _user$project$PegApp$showTarget = F2(
 						return _elm_lang$core$Native_Utils.crashCase(
 							'PegApp',
 							{
-								start: {line: 128, column: 13},
-								end: {line: 131, column: 63}
+								start: {line: 163, column: 13},
+								end: {line: 166, column: 63}
 							},
 							_p11)('showTarget: invalid location');
 					case 'Empty':
@@ -12410,7 +12483,7 @@ var _user$project$PegApp$showTarget = F2(
 		}
 	});
 var _user$project$PegApp$viewBoard = function (board) {
-	return _user$project$PegApp$makeTable(
+	var table = _user$project$PegApp$makeTable(
 		A2(
 			_user$project$PegApp$showTarget,
 			board,
@@ -12421,6 +12494,36 @@ var _user$project$PegApp$viewBoard = function (board) {
 					_user$project$PegApp$showSelection,
 					board.pegSelected,
 					_user$project$PegApp$getCells(board.grid)))));
+	var style = _elm_lang$html$Html_Attributes$style(
+		{
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 'position', _1: 'fixed'},
+			_1: {
+				ctor: '::',
+				_0: {ctor: '_Tuple2', _0: 'top', _1: '50%'},
+				_1: {
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'left', _1: '50%'},
+					_1: {
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'transform', _1: 'translate(-50%, -50%)'},
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		});
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: style,
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: table,
+			_1: {ctor: '[]'}
+		});
 };
 var _user$project$PegApp$CreateGame = function (a) {
 	return {ctor: 'CreateGame', _0: a};
@@ -12506,25 +12609,7 @@ var _user$project$PegApp$init = {
 	_1: _user$project$PegApp$initRandom
 };
 var _user$project$PegApp$NewGame = {ctor: 'NewGame'};
-var _user$project$PegApp$view = function (model) {
-	var style = _elm_lang$html$Html_Attributes$style(
-		{
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 'position', _1: 'fixed'},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: 'top', _1: '50%'},
-				_1: {
-					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: 'left', _1: '50%'},
-					_1: {
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'transform', _1: 'translate(-50%, -50%)'},
-						_1: {ctor: '[]'}
-					}
-				}
-			}
-		});
+var _user$project$PegApp$buttonsView = function () {
 	var rulesButton = A2(
 		_elm_lang$html$Html$button,
 		{
@@ -12573,36 +12658,51 @@ var _user$project$PegApp$view = function (model) {
 			_0: _elm_lang$html$Html$text('new game'),
 			_1: {ctor: '[]'}
 		});
-	var boardView = _user$project$PegApp$viewBoard(model.game.board);
-	var gameView = A2(
+	return A2(
 		_elm_lang$html$Html$div,
+		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: style,
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: undoButton,
+			_0: newGameButton,
 			_1: {
 				ctor: '::',
-				_0: resetButton,
+				_0: undoButton,
 				_1: {
 					ctor: '::',
-					_0: newGameButton,
+					_0: resetButton,
 					_1: {
 						ctor: '::',
 						_0: rulesButton,
-						_1: {
-							ctor: '::',
-							_0: boardView,
-							_1: {ctor: '[]'}
-						}
+						_1: {ctor: '[]'}
 					}
 				}
 			}
 		});
-	return gameView;
+}();
+var _user$project$PegApp$view = function (model) {
+	var rulesView = model.rules ? _user$project$PegApp$rules : _elm_lang$html$Html$text('');
+	var winView = model.game.solved ? _user$project$PegApp$won : _elm_lang$html$Html$text('');
+	var boardView = _user$project$PegApp$viewBoard(model.game.board);
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _user$project$PegApp$buttonsView,
+			_1: {
+				ctor: '::',
+				_0: boardView,
+				_1: {
+					ctor: '::',
+					_0: winView,
+					_1: {
+						ctor: '::',
+						_0: rulesView,
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		});
 };
 var _user$project$PegApp$main = _elm_lang$html$Html$program(
 	{

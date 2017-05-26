@@ -42,27 +42,62 @@ view : Model -> Html Msg
 view model =
   let
     boardView = viewBoard model.game.board
+    winView = if model.game.solved then won else Html.text ""
+    rulesView = if model.rules then rules else Html.text ""
+  in
+    div [] [buttonsView, boardView, winView, rulesView]
+
+won =
+  let
+    style = Html.Attributes.style [("height", "30px")]
+    txt = Html.text "You won!"
+  in
+    div [style] [txt]
+
+rules =
+  let
+    style = Html.Attributes.style [("width", "25%")]
+    txt =
+      Html.text <|
+        """
+        Welcome to Peg Solitaire! This is a single player puzzle. Pieces on the board,
+        or pegs, are marked with large red circles, and smaller black circles
+        indicate empty spaces. Pegs can jump over adjacent pegs into empty spots,
+        thereby clearing the jumped peg. The objective of the game is to
+        clear the board, except for a single peg in the spot circled black (i.e. the
+        original empty space). This spot remains marked throughout the game for easy
+        reference. To make a move, select a peg by clicking on it. The empty spaces
+        into which the selected peg may be jumped are shown in grey. Click one of
+        these in order to make your move. Good luck!
+        """
+  in
+    div [style] [txt]
+
+buttonsView : Html Msg
+buttonsView =
+  let
     newGameButton = button [onClick NewGame] [Html.text "new game"]
     undoButton = button [onClick Undo] [Html.text "undo"]
     resetButton = button [onClick Reset] [Html.text "reset"]
     rulesButton = button [onClick Rules] [Html.text "show rules"]
-    style =
-      Html.Attributes.style <|
-        [ ("position", "fixed")
-        , ("top", "50%")
-        , ("left", "50%")
-        , ("transform", "translate(-50%, -50%)")
-        ]
-    gameView = div [style] <|
-      [undoButton, resetButton, newGameButton, rulesButton, boardView]
   in
-    gameView
+    div [] [newGameButton, undoButton, resetButton, rulesButton]
 
 viewBoard : Board -> Html Msg
 viewBoard board =
-  getCells board.grid |>
-    showSelection board.pegSelected |>
-      showMoves board.validMoves |> showTarget board |> makeTable
+  let
+    style = Html.Attributes.style <|
+      [ ("position", "fixed")
+      , ("top", "50%")
+      , ("left", "50%")
+      , ("transform", "translate(-50%, -50%)")
+      ]
+    table =
+      getCells board.grid |>
+        showSelection board.pegSelected |>
+          showMoves board.validMoves |> showTarget board |> makeTable
+  in
+    div [style] [table]
 
 getCells : Grid -> Array (Array (Html Msg))
 getCells grid =
@@ -85,7 +120,7 @@ emptyCell = td [] [[circle 10 |> filled black] |> collage 40 40 |> toHtml]
 pegCell : Loc -> Html Msg
 pegCell loc =
   td [onClick (SelectPeg loc)] <|
-    [[circle 20 |> filled darkRed] |> collage 40 40 |> toHtml]
+    [[circle 17 |> filled darkRed] |> collage 40 40 |> toHtml]
 
 showSelection :
   Maybe Loc ->  Array (Array (Html Msg)) -> Array (Array (Html Msg))
@@ -95,7 +130,7 @@ showSelection maybeLoc cells =
     Just loc    -> setMatrix loc selectedCell cells
 
 selectedCell : Html Msg
-selectedCell = td [] [[circle 20 |> filled lightRed] |> collage 40 40 |> toHtml]
+selectedCell = td [] [[circle 17 |> filled lightRed] |> collage 40 40 |> toHtml]
 
 showMoves : List Move -> Array (Array (Html Msg)) -> Array (Array (Html Msg))
 showMoves moves cells =
@@ -145,19 +180,25 @@ findMove loc moves =
     move::rest ->
       if Tuple.second move == loc then Just move else findMove loc rest
 
+lineStyle = { defaultLine | width = 4 }
+
 moveCellTarget move =
   td [onClick (SelectMove move)] <|
-    [[circle 10 |> filled lightGreen] |> collage 40 40 |> toHtml]
+    [[circle 10 |> filled grey, circle 17 |> outlined lineStyle] |>
+     collage 40 40 |> toHtml]
 
 emptyCellTarget =
-  td [] [[circle 10 |> filled darkGreen] |> collage 40 40 |> toHtml]
+  td [] [[circle 10 |> filled black, circle 17 |> outlined lineStyle] |>
+         collage 40 40 |> toHtml]
 
 pegCellTarget loc =
   td [onClick (SelectPeg loc)] <|
-    [[circle 20 |> filled darkGreen] |> collage 40 40 |> toHtml]
+    [[circle 17 |> filled darkRed, circle 17 |> outlined lineStyle] |>
+     collage 40 40 |> toHtml]
 
 selectedCellTarget =
-  td [] [[circle 20 |> filled lightGreen] |> collage 40 40 |> toHtml]
+  td [] [[circle 17 |> filled lightRed, circle 17 |> outlined lineStyle] |>
+         collage 40 40 |> toHtml]
 
 setMatrix (x, y) msg cells = set x (set y msg (fget x cells)) cells
 
