@@ -1,12 +1,17 @@
 module PegLogic exposing
-  ( Game
-  , Move
+  ( Space (..)
   , Loc
+  , Move
+  , Grid
+  , Board
+  , Game
   , initGame
   , selectPeg
   , makeMove
   , undoMove
   , resetGame
+  , getSpace
+  , fget
   )
 
 import Array exposing (..)
@@ -23,6 +28,7 @@ type alias Board =
   { grid : Grid
   , pegSelected : Maybe Loc
   , validMoves : List Move
+  , targetLoc : Loc
   }
 
 type alias Game =
@@ -39,7 +45,12 @@ initGame n =
   let
     targetLoc = getLoc n
     grid = full |> clear targetLoc
-    board = { grid = grid, pegSelected = Nothing, validMoves = [] }
+    board =
+      { grid = grid
+      , pegSelected = Nothing
+      , validMoves = []
+      , targetLoc = targetLoc
+      }
   in
     { board = board
     , target = empty |> putPeg targetLoc
@@ -110,13 +121,19 @@ makeMove (mid, end) game =
     start = case game.board.pegSelected of
       Nothing  -> Debug.crash "makeMove: no peg selected"
       Just loc -> loc
+    board = game.board
     gridNew = game.board.grid |> clear start |> clear mid |> putPeg end
-    boardNew = { grid = gridNew, pegSelected = Nothing, validMoves = [] }
+    boardNew =
+      { board
+      | grid = gridNew
+      , pegSelected = Nothing
+      , validMoves = []
+      }
   in
     { game
     | board = boardNew
     , solved = gridNew == game.target
-    , history = boardNew :: game.history
+    , history = game.board :: game.history
     }
 
 -- helper functions to selectPeg and makeMove

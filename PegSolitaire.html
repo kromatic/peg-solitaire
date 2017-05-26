@@ -6400,9 +6400,6 @@ return {
 };
 
 }();
-var _elm_lang$core$Process$kill = _elm_lang$core$Native_Scheduler.kill;
-var _elm_lang$core$Process$sleep = _elm_lang$core$Native_Scheduler.sleep;
-var _elm_lang$core$Process$spawn = _elm_lang$core$Native_Scheduler.spawn;
 var _elm_lang$core$Tuple$mapSecond = F2(
 	function (func, _p0) {
 		var _p1 = _p0;
@@ -6429,6 +6426,384 @@ var _elm_lang$core$Tuple$first = function (_p6) {
 	var _p7 = _p6;
 	return _p7._0;
 };
+var _elm_lang$core$Random$onSelfMsg = F3(
+	function (_p1, _p0, seed) {
+		return _elm_lang$core$Task$succeed(seed);
+	});
+var _elm_lang$core$Random$magicNum8 = 2147483562;
+var _elm_lang$core$Random$range = function (_p2) {
+	return {ctor: '_Tuple2', _0: 0, _1: _elm_lang$core$Random$magicNum8};
+};
+var _elm_lang$core$Random$magicNum7 = 2147483399;
+var _elm_lang$core$Random$magicNum6 = 2147483563;
+var _elm_lang$core$Random$magicNum5 = 3791;
+var _elm_lang$core$Random$magicNum4 = 40692;
+var _elm_lang$core$Random$magicNum3 = 52774;
+var _elm_lang$core$Random$magicNum2 = 12211;
+var _elm_lang$core$Random$magicNum1 = 53668;
+var _elm_lang$core$Random$magicNum0 = 40014;
+var _elm_lang$core$Random$step = F2(
+	function (_p3, seed) {
+		var _p4 = _p3;
+		return _p4._0(seed);
+	});
+var _elm_lang$core$Random$onEffects = F3(
+	function (router, commands, seed) {
+		var _p5 = commands;
+		if (_p5.ctor === '[]') {
+			return _elm_lang$core$Task$succeed(seed);
+		} else {
+			var _p6 = A2(_elm_lang$core$Random$step, _p5._0._0, seed);
+			var value = _p6._0;
+			var newSeed = _p6._1;
+			return A2(
+				_elm_lang$core$Task$andThen,
+				function (_p7) {
+					return A3(_elm_lang$core$Random$onEffects, router, _p5._1, newSeed);
+				},
+				A2(_elm_lang$core$Platform$sendToApp, router, value));
+		}
+	});
+var _elm_lang$core$Random$listHelp = F4(
+	function (list, n, generate, seed) {
+		listHelp:
+		while (true) {
+			if (_elm_lang$core$Native_Utils.cmp(n, 1) < 0) {
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$List$reverse(list),
+					_1: seed
+				};
+			} else {
+				var _p8 = generate(seed);
+				var value = _p8._0;
+				var newSeed = _p8._1;
+				var _v2 = {ctor: '::', _0: value, _1: list},
+					_v3 = n - 1,
+					_v4 = generate,
+					_v5 = newSeed;
+				list = _v2;
+				n = _v3;
+				generate = _v4;
+				seed = _v5;
+				continue listHelp;
+			}
+		}
+	});
+var _elm_lang$core$Random$minInt = -2147483648;
+var _elm_lang$core$Random$maxInt = 2147483647;
+var _elm_lang$core$Random$iLogBase = F2(
+	function (b, i) {
+		return (_elm_lang$core$Native_Utils.cmp(i, b) < 0) ? 1 : (1 + A2(_elm_lang$core$Random$iLogBase, b, (i / b) | 0));
+	});
+var _elm_lang$core$Random$command = _elm_lang$core$Native_Platform.leaf('Random');
+var _elm_lang$core$Random$Generator = function (a) {
+	return {ctor: 'Generator', _0: a};
+};
+var _elm_lang$core$Random$list = F2(
+	function (n, _p9) {
+		var _p10 = _p9;
+		return _elm_lang$core$Random$Generator(
+			function (seed) {
+				return A4(
+					_elm_lang$core$Random$listHelp,
+					{ctor: '[]'},
+					n,
+					_p10._0,
+					seed);
+			});
+	});
+var _elm_lang$core$Random$map = F2(
+	function (func, _p11) {
+		var _p12 = _p11;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p13 = _p12._0(seed0);
+				var a = _p13._0;
+				var seed1 = _p13._1;
+				return {
+					ctor: '_Tuple2',
+					_0: func(a),
+					_1: seed1
+				};
+			});
+	});
+var _elm_lang$core$Random$map2 = F3(
+	function (func, _p15, _p14) {
+		var _p16 = _p15;
+		var _p17 = _p14;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p18 = _p16._0(seed0);
+				var a = _p18._0;
+				var seed1 = _p18._1;
+				var _p19 = _p17._0(seed1);
+				var b = _p19._0;
+				var seed2 = _p19._1;
+				return {
+					ctor: '_Tuple2',
+					_0: A2(func, a, b),
+					_1: seed2
+				};
+			});
+	});
+var _elm_lang$core$Random$pair = F2(
+	function (genA, genB) {
+		return A3(
+			_elm_lang$core$Random$map2,
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}),
+			genA,
+			genB);
+	});
+var _elm_lang$core$Random$map3 = F4(
+	function (func, _p22, _p21, _p20) {
+		var _p23 = _p22;
+		var _p24 = _p21;
+		var _p25 = _p20;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p26 = _p23._0(seed0);
+				var a = _p26._0;
+				var seed1 = _p26._1;
+				var _p27 = _p24._0(seed1);
+				var b = _p27._0;
+				var seed2 = _p27._1;
+				var _p28 = _p25._0(seed2);
+				var c = _p28._0;
+				var seed3 = _p28._1;
+				return {
+					ctor: '_Tuple2',
+					_0: A3(func, a, b, c),
+					_1: seed3
+				};
+			});
+	});
+var _elm_lang$core$Random$map4 = F5(
+	function (func, _p32, _p31, _p30, _p29) {
+		var _p33 = _p32;
+		var _p34 = _p31;
+		var _p35 = _p30;
+		var _p36 = _p29;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p37 = _p33._0(seed0);
+				var a = _p37._0;
+				var seed1 = _p37._1;
+				var _p38 = _p34._0(seed1);
+				var b = _p38._0;
+				var seed2 = _p38._1;
+				var _p39 = _p35._0(seed2);
+				var c = _p39._0;
+				var seed3 = _p39._1;
+				var _p40 = _p36._0(seed3);
+				var d = _p40._0;
+				var seed4 = _p40._1;
+				return {
+					ctor: '_Tuple2',
+					_0: A4(func, a, b, c, d),
+					_1: seed4
+				};
+			});
+	});
+var _elm_lang$core$Random$map5 = F6(
+	function (func, _p45, _p44, _p43, _p42, _p41) {
+		var _p46 = _p45;
+		var _p47 = _p44;
+		var _p48 = _p43;
+		var _p49 = _p42;
+		var _p50 = _p41;
+		return _elm_lang$core$Random$Generator(
+			function (seed0) {
+				var _p51 = _p46._0(seed0);
+				var a = _p51._0;
+				var seed1 = _p51._1;
+				var _p52 = _p47._0(seed1);
+				var b = _p52._0;
+				var seed2 = _p52._1;
+				var _p53 = _p48._0(seed2);
+				var c = _p53._0;
+				var seed3 = _p53._1;
+				var _p54 = _p49._0(seed3);
+				var d = _p54._0;
+				var seed4 = _p54._1;
+				var _p55 = _p50._0(seed4);
+				var e = _p55._0;
+				var seed5 = _p55._1;
+				return {
+					ctor: '_Tuple2',
+					_0: A5(func, a, b, c, d, e),
+					_1: seed5
+				};
+			});
+	});
+var _elm_lang$core$Random$andThen = F2(
+	function (callback, _p56) {
+		var _p57 = _p56;
+		return _elm_lang$core$Random$Generator(
+			function (seed) {
+				var _p58 = _p57._0(seed);
+				var result = _p58._0;
+				var newSeed = _p58._1;
+				var _p59 = callback(result);
+				var genB = _p59._0;
+				return genB(newSeed);
+			});
+	});
+var _elm_lang$core$Random$State = F2(
+	function (a, b) {
+		return {ctor: 'State', _0: a, _1: b};
+	});
+var _elm_lang$core$Random$initState = function (seed) {
+	var s = A2(_elm_lang$core$Basics$max, seed, 0 - seed);
+	var q = (s / (_elm_lang$core$Random$magicNum6 - 1)) | 0;
+	var s2 = A2(_elm_lang$core$Basics_ops['%'], q, _elm_lang$core$Random$magicNum7 - 1);
+	var s1 = A2(_elm_lang$core$Basics_ops['%'], s, _elm_lang$core$Random$magicNum6 - 1);
+	return A2(_elm_lang$core$Random$State, s1 + 1, s2 + 1);
+};
+var _elm_lang$core$Random$next = function (_p60) {
+	var _p61 = _p60;
+	var _p63 = _p61._1;
+	var _p62 = _p61._0;
+	var k2 = (_p63 / _elm_lang$core$Random$magicNum3) | 0;
+	var rawState2 = (_elm_lang$core$Random$magicNum4 * (_p63 - (k2 * _elm_lang$core$Random$magicNum3))) - (k2 * _elm_lang$core$Random$magicNum5);
+	var newState2 = (_elm_lang$core$Native_Utils.cmp(rawState2, 0) < 0) ? (rawState2 + _elm_lang$core$Random$magicNum7) : rawState2;
+	var k1 = (_p62 / _elm_lang$core$Random$magicNum1) | 0;
+	var rawState1 = (_elm_lang$core$Random$magicNum0 * (_p62 - (k1 * _elm_lang$core$Random$magicNum1))) - (k1 * _elm_lang$core$Random$magicNum2);
+	var newState1 = (_elm_lang$core$Native_Utils.cmp(rawState1, 0) < 0) ? (rawState1 + _elm_lang$core$Random$magicNum6) : rawState1;
+	var z = newState1 - newState2;
+	var newZ = (_elm_lang$core$Native_Utils.cmp(z, 1) < 0) ? (z + _elm_lang$core$Random$magicNum8) : z;
+	return {
+		ctor: '_Tuple2',
+		_0: newZ,
+		_1: A2(_elm_lang$core$Random$State, newState1, newState2)
+	};
+};
+var _elm_lang$core$Random$split = function (_p64) {
+	var _p65 = _p64;
+	var _p68 = _p65._1;
+	var _p67 = _p65._0;
+	var _p66 = _elm_lang$core$Tuple$second(
+		_elm_lang$core$Random$next(_p65));
+	var t1 = _p66._0;
+	var t2 = _p66._1;
+	var new_s2 = _elm_lang$core$Native_Utils.eq(_p68, 1) ? (_elm_lang$core$Random$magicNum7 - 1) : (_p68 - 1);
+	var new_s1 = _elm_lang$core$Native_Utils.eq(_p67, _elm_lang$core$Random$magicNum6 - 1) ? 1 : (_p67 + 1);
+	return {
+		ctor: '_Tuple2',
+		_0: A2(_elm_lang$core$Random$State, new_s1, t2),
+		_1: A2(_elm_lang$core$Random$State, t1, new_s2)
+	};
+};
+var _elm_lang$core$Random$Seed = function (a) {
+	return {ctor: 'Seed', _0: a};
+};
+var _elm_lang$core$Random$int = F2(
+	function (a, b) {
+		return _elm_lang$core$Random$Generator(
+			function (_p69) {
+				var _p70 = _p69;
+				var _p75 = _p70._0;
+				var base = 2147483561;
+				var f = F3(
+					function (n, acc, state) {
+						f:
+						while (true) {
+							var _p71 = n;
+							if (_p71 === 0) {
+								return {ctor: '_Tuple2', _0: acc, _1: state};
+							} else {
+								var _p72 = _p75.next(state);
+								var x = _p72._0;
+								var nextState = _p72._1;
+								var _v27 = n - 1,
+									_v28 = x + (acc * base),
+									_v29 = nextState;
+								n = _v27;
+								acc = _v28;
+								state = _v29;
+								continue f;
+							}
+						}
+					});
+				var _p73 = (_elm_lang$core$Native_Utils.cmp(a, b) < 0) ? {ctor: '_Tuple2', _0: a, _1: b} : {ctor: '_Tuple2', _0: b, _1: a};
+				var lo = _p73._0;
+				var hi = _p73._1;
+				var k = (hi - lo) + 1;
+				var n = A2(_elm_lang$core$Random$iLogBase, base, k);
+				var _p74 = A3(f, n, 1, _p75.state);
+				var v = _p74._0;
+				var nextState = _p74._1;
+				return {
+					ctor: '_Tuple2',
+					_0: lo + A2(_elm_lang$core$Basics_ops['%'], v, k),
+					_1: _elm_lang$core$Random$Seed(
+						_elm_lang$core$Native_Utils.update(
+							_p75,
+							{state: nextState}))
+				};
+			});
+	});
+var _elm_lang$core$Random$bool = A2(
+	_elm_lang$core$Random$map,
+	F2(
+		function (x, y) {
+			return _elm_lang$core$Native_Utils.eq(x, y);
+		})(1),
+	A2(_elm_lang$core$Random$int, 0, 1));
+var _elm_lang$core$Random$float = F2(
+	function (a, b) {
+		return _elm_lang$core$Random$Generator(
+			function (seed) {
+				var _p76 = A2(
+					_elm_lang$core$Random$step,
+					A2(_elm_lang$core$Random$int, _elm_lang$core$Random$minInt, _elm_lang$core$Random$maxInt),
+					seed);
+				var number = _p76._0;
+				var newSeed = _p76._1;
+				var negativeOneToOne = _elm_lang$core$Basics$toFloat(number) / _elm_lang$core$Basics$toFloat(_elm_lang$core$Random$maxInt - _elm_lang$core$Random$minInt);
+				var _p77 = (_elm_lang$core$Native_Utils.cmp(a, b) < 0) ? {ctor: '_Tuple2', _0: a, _1: b} : {ctor: '_Tuple2', _0: b, _1: a};
+				var lo = _p77._0;
+				var hi = _p77._1;
+				var scaled = ((lo + hi) / 2) + ((hi - lo) * negativeOneToOne);
+				return {ctor: '_Tuple2', _0: scaled, _1: newSeed};
+			});
+	});
+var _elm_lang$core$Random$initialSeed = function (n) {
+	return _elm_lang$core$Random$Seed(
+		{
+			state: _elm_lang$core$Random$initState(n),
+			next: _elm_lang$core$Random$next,
+			split: _elm_lang$core$Random$split,
+			range: _elm_lang$core$Random$range
+		});
+};
+var _elm_lang$core$Random$init = A2(
+	_elm_lang$core$Task$andThen,
+	function (t) {
+		return _elm_lang$core$Task$succeed(
+			_elm_lang$core$Random$initialSeed(
+				_elm_lang$core$Basics$round(t)));
+	},
+	_elm_lang$core$Time$now);
+var _elm_lang$core$Random$Generate = function (a) {
+	return {ctor: 'Generate', _0: a};
+};
+var _elm_lang$core$Random$generate = F2(
+	function (tagger, generator) {
+		return _elm_lang$core$Random$command(
+			_elm_lang$core$Random$Generate(
+				A2(_elm_lang$core$Random$map, tagger, generator)));
+	});
+var _elm_lang$core$Random$cmdMap = F2(
+	function (func, _p78) {
+		var _p79 = _p78;
+		return _elm_lang$core$Random$Generate(
+			A2(_elm_lang$core$Random$map, func, _p79._0));
+	});
+_elm_lang$core$Native_Platform.effectManagers['Random'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Random$init, onEffects: _elm_lang$core$Random$onEffects, onSelfMsg: _elm_lang$core$Random$onSelfMsg, tag: 'cmd', cmdMap: _elm_lang$core$Random$cmdMap};
 var _elm_lang$core$Regex$split = _elm_lang$core$Native_Regex.split;
 var _elm_lang$core$Regex$replace = _elm_lang$core$Native_Regex.replace;
 var _elm_lang$core$Regex$find = _elm_lang$core$Native_Regex.find;
@@ -6445,190 +6820,6 @@ var _elm_lang$core$Regex$AtMost = function (a) {
 	return {ctor: 'AtMost', _0: a};
 };
 var _elm_lang$core$Regex$All = {ctor: 'All'};
-var _elm_lang$dom$Native_Dom = function() {
-
-var fakeNode = {
-	addEventListener: function() {},
-	removeEventListener: function() {}
-};
-
-var onDocument = on(typeof document !== 'undefined' ? document : fakeNode);
-var onWindow = on(typeof window !== 'undefined' ? window : fakeNode);
-
-function on(node)
-{
-	return function(eventName, decoder, toTask)
-	{
-		return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
-
-			function performTask(event)
-			{
-				var result = A2(_elm_lang$core$Json_Decode$decodeValue, decoder, event);
-				if (result.ctor === 'Ok')
-				{
-					_elm_lang$core$Native_Scheduler.rawSpawn(toTask(result._0));
-				}
-			}
-
-			node.addEventListener(eventName, performTask);
-
-			return function()
-			{
-				node.removeEventListener(eventName, performTask);
-			};
-		});
-	};
-}
-
-var rAF = typeof requestAnimationFrame !== 'undefined'
-	? requestAnimationFrame
-	: function(callback) { callback(); };
-
-function withNode(id, doStuff)
-{
-	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
-	{
-		rAF(function()
-		{
-			var node = document.getElementById(id);
-			if (node === null)
-			{
-				callback(_elm_lang$core$Native_Scheduler.fail({ ctor: 'NotFound', _0: id }));
-				return;
-			}
-			callback(_elm_lang$core$Native_Scheduler.succeed(doStuff(node)));
-		});
-	});
-}
-
-
-// FOCUS
-
-function focus(id)
-{
-	return withNode(id, function(node) {
-		node.focus();
-		return _elm_lang$core$Native_Utils.Tuple0;
-	});
-}
-
-function blur(id)
-{
-	return withNode(id, function(node) {
-		node.blur();
-		return _elm_lang$core$Native_Utils.Tuple0;
-	});
-}
-
-
-// SCROLLING
-
-function getScrollTop(id)
-{
-	return withNode(id, function(node) {
-		return node.scrollTop;
-	});
-}
-
-function setScrollTop(id, desiredScrollTop)
-{
-	return withNode(id, function(node) {
-		node.scrollTop = desiredScrollTop;
-		return _elm_lang$core$Native_Utils.Tuple0;
-	});
-}
-
-function toBottom(id)
-{
-	return withNode(id, function(node) {
-		node.scrollTop = node.scrollHeight;
-		return _elm_lang$core$Native_Utils.Tuple0;
-	});
-}
-
-function getScrollLeft(id)
-{
-	return withNode(id, function(node) {
-		return node.scrollLeft;
-	});
-}
-
-function setScrollLeft(id, desiredScrollLeft)
-{
-	return withNode(id, function(node) {
-		node.scrollLeft = desiredScrollLeft;
-		return _elm_lang$core$Native_Utils.Tuple0;
-	});
-}
-
-function toRight(id)
-{
-	return withNode(id, function(node) {
-		node.scrollLeft = node.scrollWidth;
-		return _elm_lang$core$Native_Utils.Tuple0;
-	});
-}
-
-
-// SIZE
-
-function width(options, id)
-{
-	return withNode(id, function(node) {
-		switch (options.ctor)
-		{
-			case 'Content':
-				return node.scrollWidth;
-			case 'VisibleContent':
-				return node.clientWidth;
-			case 'VisibleContentWithBorders':
-				return node.offsetWidth;
-			case 'VisibleContentWithBordersAndMargins':
-				var rect = node.getBoundingClientRect();
-				return rect.right - rect.left;
-		}
-	});
-}
-
-function height(options, id)
-{
-	return withNode(id, function(node) {
-		switch (options.ctor)
-		{
-			case 'Content':
-				return node.scrollHeight;
-			case 'VisibleContent':
-				return node.clientHeight;
-			case 'VisibleContentWithBorders':
-				return node.offsetHeight;
-			case 'VisibleContentWithBordersAndMargins':
-				var rect = node.getBoundingClientRect();
-				return rect.bottom - rect.top;
-		}
-	});
-}
-
-return {
-	onDocument: F3(onDocument),
-	onWindow: F3(onWindow),
-
-	focus: focus,
-	blur: blur,
-
-	getScrollTop: getScrollTop,
-	setScrollTop: F2(setScrollTop),
-	getScrollLeft: getScrollLeft,
-	setScrollLeft: F2(setScrollLeft),
-	toBottom: toBottom,
-	toRight: toRight,
-
-	height: F2(height),
-	width: F2(width)
-};
-
-}();
-var _elm_lang$dom$Dom_LowLevel$onWindow = _elm_lang$dom$Native_Dom.onWindow;
-var _elm_lang$dom$Dom_LowLevel$onDocument = _elm_lang$dom$Native_Dom.onDocument;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags;
 
@@ -9127,174 +9318,6 @@ var _elm_lang$html$Html_Events$Options = F2(
 	function (a, b) {
 		return {stopPropagation: a, preventDefault: b};
 	});
-var _elm_lang$keyboard$Keyboard$onSelfMsg = F3(
-	function (router, _p0, state) {
-		var _p1 = _p0;
-		var _p2 = A2(_elm_lang$core$Dict$get, _p1.category, state);
-		if (_p2.ctor === 'Nothing') {
-			return _elm_lang$core$Task$succeed(state);
-		} else {
-			var send = function (tagger) {
-				return A2(
-					_elm_lang$core$Platform$sendToApp,
-					router,
-					tagger(_p1.keyCode));
-			};
-			return A2(
-				_elm_lang$core$Task$andThen,
-				function (_p3) {
-					return _elm_lang$core$Task$succeed(state);
-				},
-				_elm_lang$core$Task$sequence(
-					A2(_elm_lang$core$List$map, send, _p2._0.taggers)));
-		}
-	});
-var _elm_lang$keyboard$Keyboard_ops = _elm_lang$keyboard$Keyboard_ops || {};
-_elm_lang$keyboard$Keyboard_ops['&>'] = F2(
-	function (task1, task2) {
-		return A2(
-			_elm_lang$core$Task$andThen,
-			function (_p4) {
-				return task2;
-			},
-			task1);
-	});
-var _elm_lang$keyboard$Keyboard$init = _elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty);
-var _elm_lang$keyboard$Keyboard$categorizeHelpHelp = F2(
-	function (value, maybeValues) {
-		var _p5 = maybeValues;
-		if (_p5.ctor === 'Nothing') {
-			return _elm_lang$core$Maybe$Just(
-				{
-					ctor: '::',
-					_0: value,
-					_1: {ctor: '[]'}
-				});
-		} else {
-			return _elm_lang$core$Maybe$Just(
-				{ctor: '::', _0: value, _1: _p5._0});
-		}
-	});
-var _elm_lang$keyboard$Keyboard$categorizeHelp = F2(
-	function (subs, subDict) {
-		categorizeHelp:
-		while (true) {
-			var _p6 = subs;
-			if (_p6.ctor === '[]') {
-				return subDict;
-			} else {
-				var _v4 = _p6._1,
-					_v5 = A3(
-					_elm_lang$core$Dict$update,
-					_p6._0._0,
-					_elm_lang$keyboard$Keyboard$categorizeHelpHelp(_p6._0._1),
-					subDict);
-				subs = _v4;
-				subDict = _v5;
-				continue categorizeHelp;
-			}
-		}
-	});
-var _elm_lang$keyboard$Keyboard$categorize = function (subs) {
-	return A2(_elm_lang$keyboard$Keyboard$categorizeHelp, subs, _elm_lang$core$Dict$empty);
-};
-var _elm_lang$keyboard$Keyboard$keyCode = A2(_elm_lang$core$Json_Decode$field, 'keyCode', _elm_lang$core$Json_Decode$int);
-var _elm_lang$keyboard$Keyboard$subscription = _elm_lang$core$Native_Platform.leaf('Keyboard');
-var _elm_lang$keyboard$Keyboard$Watcher = F2(
-	function (a, b) {
-		return {taggers: a, pid: b};
-	});
-var _elm_lang$keyboard$Keyboard$Msg = F2(
-	function (a, b) {
-		return {category: a, keyCode: b};
-	});
-var _elm_lang$keyboard$Keyboard$onEffects = F3(
-	function (router, newSubs, oldState) {
-		var rightStep = F3(
-			function (category, taggers, task) {
-				return A2(
-					_elm_lang$core$Task$andThen,
-					function (state) {
-						return A2(
-							_elm_lang$core$Task$andThen,
-							function (pid) {
-								return _elm_lang$core$Task$succeed(
-									A3(
-										_elm_lang$core$Dict$insert,
-										category,
-										A2(_elm_lang$keyboard$Keyboard$Watcher, taggers, pid),
-										state));
-							},
-							_elm_lang$core$Process$spawn(
-								A3(
-									_elm_lang$dom$Dom_LowLevel$onDocument,
-									category,
-									_elm_lang$keyboard$Keyboard$keyCode,
-									function (_p7) {
-										return A2(
-											_elm_lang$core$Platform$sendToSelf,
-											router,
-											A2(_elm_lang$keyboard$Keyboard$Msg, category, _p7));
-									})));
-					},
-					task);
-			});
-		var bothStep = F4(
-			function (category, _p8, taggers, task) {
-				var _p9 = _p8;
-				return A2(
-					_elm_lang$core$Task$map,
-					A2(
-						_elm_lang$core$Dict$insert,
-						category,
-						A2(_elm_lang$keyboard$Keyboard$Watcher, taggers, _p9.pid)),
-					task);
-			});
-		var leftStep = F3(
-			function (category, _p10, task) {
-				var _p11 = _p10;
-				return A2(
-					_elm_lang$keyboard$Keyboard_ops['&>'],
-					_elm_lang$core$Process$kill(_p11.pid),
-					task);
-			});
-		return A6(
-			_elm_lang$core$Dict$merge,
-			leftStep,
-			bothStep,
-			rightStep,
-			oldState,
-			_elm_lang$keyboard$Keyboard$categorize(newSubs),
-			_elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty));
-	});
-var _elm_lang$keyboard$Keyboard$MySub = F2(
-	function (a, b) {
-		return {ctor: 'MySub', _0: a, _1: b};
-	});
-var _elm_lang$keyboard$Keyboard$presses = function (tagger) {
-	return _elm_lang$keyboard$Keyboard$subscription(
-		A2(_elm_lang$keyboard$Keyboard$MySub, 'keypress', tagger));
-};
-var _elm_lang$keyboard$Keyboard$downs = function (tagger) {
-	return _elm_lang$keyboard$Keyboard$subscription(
-		A2(_elm_lang$keyboard$Keyboard$MySub, 'keydown', tagger));
-};
-var _elm_lang$keyboard$Keyboard$ups = function (tagger) {
-	return _elm_lang$keyboard$Keyboard$subscription(
-		A2(_elm_lang$keyboard$Keyboard$MySub, 'keyup', tagger));
-};
-var _elm_lang$keyboard$Keyboard$subMap = F2(
-	function (func, _p12) {
-		var _p13 = _p12;
-		return A2(
-			_elm_lang$keyboard$Keyboard$MySub,
-			_p13._0,
-			function (_p14) {
-				return func(
-					_p13._1(_p14));
-			});
-	});
-_elm_lang$core$Native_Platform.effectManagers['Keyboard'] = {pkg: 'elm-lang/keyboard', init: _elm_lang$keyboard$Keyboard$init, onEffects: _elm_lang$keyboard$Keyboard$onEffects, onSelfMsg: _elm_lang$keyboard$Keyboard$onSelfMsg, tag: 'sub', subMap: _elm_lang$keyboard$Keyboard$subMap};
 var _evancz$elm_graphics$Native_Element = function()
 {
 
@@ -11736,468 +11759,753 @@ var _evancz$elm_graphics$Collage$ngon = F2(
 				f,
 				A2(_elm_lang$core$List$range, 0, n - 1)));
 	});
-var _user$project$PegLogic$validLoc = function (_p0) {
-	var _p1 = _p0;
-	var _p3 = _p1._1;
-	var _p2 = _p1._0;
-	return (_elm_lang$core$Native_Utils.cmp(0, _p2) < 1) && ((_elm_lang$core$Native_Utils.cmp(_p2, 7) < 0) && ((_elm_lang$core$Native_Utils.cmp(0, _p3) < 1) && (_elm_lang$core$Native_Utils.cmp(_p3, 7) < 0)));
+var _user$project$PegLogic$resetGame = function (game) {
+	return _elm_lang$core$Native_Utils.update(
+		game,
+		{
+			board: game.original,
+			solved: false,
+			history: {ctor: '[]'}
+		});
+};
+var _user$project$PegLogic$undoMove = function (game) {
+	var _p0 = game.history;
+	if (_p0.ctor === '[]') {
+		return game;
+	} else {
+		return _elm_lang$core$Native_Utils.update(
+			game,
+			{board: _p0._0, solved: false, history: _p0._1});
+	}
+};
+var _user$project$PegLogic$validLoc = function (_p1) {
+	var _p2 = _p1;
+	var _p4 = _p2._1;
+	var _p3 = _p2._0;
+	return (_elm_lang$core$Native_Utils.cmp(0, _p3) < 1) && ((_elm_lang$core$Native_Utils.cmp(_p3, 7) < 0) && ((_elm_lang$core$Native_Utils.cmp(0, _p4) < 1) && (_elm_lang$core$Native_Utils.cmp(_p4, 7) < 0)));
 };
 var _user$project$PegLogic$fget = F2(
 	function (i, arr) {
-		var _p4 = A2(_elm_lang$core$Array$get, i, arr);
-		if (_p4.ctor === 'Just') {
-			return _p4._0;
+		var _p5 = A2(_elm_lang$core$Array$get, i, arr);
+		if (_p5.ctor === 'Just') {
+			return _p5._0;
 		} else {
 			return _elm_lang$core$Native_Utils.crashCase(
 				'PegLogic',
 				{
-					start: {line: 67, column: 14},
-					end: {line: 69, column: 48}
+					start: {line: 142, column: 14},
+					end: {line: 144, column: 48}
 				},
-				_p4)('fget: invalid index');
+				_p5)('fget: invalid index');
 		}
 	});
 var _user$project$PegLogic$getSpace = F2(
-	function (_p7, _p6) {
+	function (_p7, grid) {
 		var _p8 = _p7;
-		var _p9 = _p6;
 		return A2(
 			_user$project$PegLogic$fget,
 			_p8._1,
-			A2(_user$project$PegLogic$fget, _p8._0, _p9._0));
+			A2(_user$project$PegLogic$fget, _p8._0, grid));
 	});
-var _user$project$PegLogic$validDiff = F2(
-	function (_p11, _p10) {
-		var _p12 = _p11;
-		var _p17 = _p12._1;
-		var _p16 = _p12._0;
-		var _p13 = _p10;
-		var _p15 = _p13._1;
-		var _p14 = _p13._0;
-		return _elm_lang$core$Native_Utils.eq(_p16 - _p14, 0) ? _elm_lang$core$Native_Utils.eq(
-			_elm_lang$core$Basics$abs(_p17 - _p15),
-			2) : (_elm_lang$core$Native_Utils.eq(_p17 - _p15, 0) ? _elm_lang$core$Native_Utils.eq(
-			_elm_lang$core$Basics$abs(_p16 - _p14),
-			2) : false);
+var _user$project$PegLogic$setSpace = F3(
+	function (_p9, s, grid) {
+		var _p10 = _p9;
+		var _p11 = _p10._0;
+		return A3(
+			_elm_lang$core$Array$set,
+			_p11,
+			A3(
+				_elm_lang$core$Array$set,
+				_p10._1,
+				s,
+				A2(_user$project$PegLogic$fget, _p11, grid)),
+			grid);
 	});
-var _user$project$PegLogic$avgLoc = F2(
-	function (_p19, _p18) {
-		var _p20 = _p19;
-		var _p21 = _p18;
-		return {ctor: '_Tuple2', _0: ((_p20._0 + _p21._0) / 2) | 0, _1: ((_p20._1 + _p21._1) / 2) | 0};
+var _user$project$PegLogic$getLoc = function (n) {
+	return ((_elm_lang$core$Native_Utils.cmp(0, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 3) < 0)) ? {ctor: '_Tuple2', _0: 0, _1: n + 2} : (((_elm_lang$core$Native_Utils.cmp(3, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 6) < 0)) ? {ctor: '_Tuple2', _0: 1, _1: n - 1} : (((_elm_lang$core$Native_Utils.cmp(6, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 13) < 0)) ? {ctor: '_Tuple2', _0: 2, _1: n - 6} : (((_elm_lang$core$Native_Utils.cmp(13, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 19) < 0)) ? {ctor: '_Tuple2', _0: 3, _1: n - 13} : (((_elm_lang$core$Native_Utils.cmp(20, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 27) < 0)) ? {ctor: '_Tuple2', _0: 4, _1: n - 20} : (((_elm_lang$core$Native_Utils.cmp(27, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 30) < 0)) ? {ctor: '_Tuple2', _0: 5, _1: n - 25} : (((_elm_lang$core$Native_Utils.cmp(30, n) < 1) && (_elm_lang$core$Native_Utils.cmp(n, 33) < 0)) ? {ctor: '_Tuple2', _0: 6, _1: n - 28} : _elm_lang$core$Native_Utils.crash(
+		'PegLogic',
+		{
+			start: {line: 89, column: 8},
+			end: {line: 89, column: 19}
+		})('getLoc: invalid int')))))));
+};
+var _user$project$PegLogic$Board = F4(
+	function (a, b, c, d) {
+		return {grid: a, pegSelected: b, validMoves: c, targetLoc: d};
+	});
+var _user$project$PegLogic$Game = F5(
+	function (a, b, c, d, e) {
+		return {board: a, target: b, solved: c, history: d, original: e};
 	});
 var _user$project$PegLogic$None = {ctor: 'None'};
+var _user$project$PegLogic$initGrid = function (s) {
+	var $long = A2(_elm_lang$core$Array$repeat, 7, s);
+	var $short = _elm_lang$core$Array$fromList(
+		{
+			ctor: '::',
+			_0: _user$project$PegLogic$None,
+			_1: {
+				ctor: '::',
+				_0: _user$project$PegLogic$None,
+				_1: {
+					ctor: '::',
+					_0: s,
+					_1: {
+						ctor: '::',
+						_0: s,
+						_1: {
+							ctor: '::',
+							_0: s,
+							_1: {
+								ctor: '::',
+								_0: _user$project$PegLogic$None,
+								_1: {
+									ctor: '::',
+									_0: _user$project$PegLogic$None,
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				}
+			}
+		});
+	return _elm_lang$core$Array$fromList(
+		{
+			ctor: '::',
+			_0: $short,
+			_1: {
+				ctor: '::',
+				_0: $short,
+				_1: {
+					ctor: '::',
+					_0: $long,
+					_1: {
+						ctor: '::',
+						_0: $long,
+						_1: {
+							ctor: '::',
+							_0: $long,
+							_1: {
+								ctor: '::',
+								_0: $short,
+								_1: {
+									ctor: '::',
+									_0: $short,
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				}
+			}
+		});
+};
 var _user$project$PegLogic$Empty = {ctor: 'Empty'};
+var _user$project$PegLogic$empty = _user$project$PegLogic$initGrid(_user$project$PegLogic$Empty);
 var _user$project$PegLogic$isEmpty = F2(
-	function (loc, board) {
+	function (loc, grid) {
 		return _elm_lang$core$Native_Utils.eq(
-			A2(_user$project$PegLogic$getSpace, loc, board),
+			A2(_user$project$PegLogic$getSpace, loc, grid),
 			_user$project$PegLogic$Empty);
 	});
+var _user$project$PegLogic$clear = F2(
+	function (loc, grid) {
+		return A3(_user$project$PegLogic$setSpace, loc, _user$project$PegLogic$Empty, grid);
+	});
 var _user$project$PegLogic$Peg = {ctor: 'Peg'};
+var _user$project$PegLogic$full = _user$project$PegLogic$initGrid(_user$project$PegLogic$Peg);
 var _user$project$PegLogic$hasPeg = F2(
-	function (loc, board) {
+	function (loc, grid) {
 		return _elm_lang$core$Native_Utils.eq(
-			A2(_user$project$PegLogic$getSpace, loc, board),
+			A2(_user$project$PegLogic$getSpace, loc, grid),
 			_user$project$PegLogic$Peg);
 	});
 var _user$project$PegLogic$validMove = F2(
-	function (_p22, board) {
-		var _p23 = _p22;
-		var _p25 = _p23._0;
-		var _p24 = _p23._1;
-		var mid = A2(_user$project$PegLogic$avgLoc, _p25, _p24);
-		return _user$project$PegLogic$validLoc(_p24) && (A2(_user$project$PegLogic$validDiff, _p25, _p24) && (A2(_user$project$PegLogic$hasPeg, mid, board) && A2(_user$project$PegLogic$isEmpty, _p24, board)));
+	function (_p12, grid) {
+		var _p13 = _p12;
+		var _p14 = _p13._1;
+		return _user$project$PegLogic$validLoc(_p14) && (A2(_user$project$PegLogic$isEmpty, _p14, grid) && A2(_user$project$PegLogic$hasPeg, _p13._0, grid));
 	});
-var _user$project$PegLogic$Board = function (a) {
-	return {ctor: 'Board', _0: a};
-};
-var _user$project$PegLogic$start = function () {
-	var $long = A2(
-		_elm_lang$core$Array$initialize,
-		7,
-		_elm_lang$core$Basics$always(_user$project$PegLogic$Peg));
-	var mid = A3(_elm_lang$core$Array$set, 3, _user$project$PegLogic$Empty, $long);
-	var $short = _elm_lang$core$Array$fromList(
-		{
-			ctor: '::',
-			_0: _user$project$PegLogic$None,
-			_1: {
-				ctor: '::',
-				_0: _user$project$PegLogic$None,
-				_1: {
-					ctor: '::',
-					_0: _user$project$PegLogic$Peg,
-					_1: {
-						ctor: '::',
-						_0: _user$project$PegLogic$Peg,
-						_1: {
-							ctor: '::',
-							_0: _user$project$PegLogic$Peg,
-							_1: {
-								ctor: '::',
-								_0: _user$project$PegLogic$None,
-								_1: {
-									ctor: '::',
-									_0: _user$project$PegLogic$None,
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					}
-				}
-			}
-		});
-	return _user$project$PegLogic$Board(
-		_elm_lang$core$Array$fromList(
+var _user$project$PegLogic$getValidMoves = F2(
+	function (_p15, grid) {
+		var _p16 = _p15;
+		var _p18 = _p16._1;
+		var _p17 = _p16._0;
+		return A2(
+			_elm_lang$core$List$filter,
+			function (move) {
+				return A2(_user$project$PegLogic$validMove, move, grid);
+			},
 			{
 				ctor: '::',
-				_0: $short,
+				_0: {
+					ctor: '_Tuple2',
+					_0: {ctor: '_Tuple2', _0: _p17, _1: _p18 - 1},
+					_1: {ctor: '_Tuple2', _0: _p17, _1: _p18 - 2}
+				},
 				_1: {
 					ctor: '::',
-					_0: $short,
+					_0: {
+						ctor: '_Tuple2',
+						_0: {ctor: '_Tuple2', _0: _p17 - 1, _1: _p18},
+						_1: {ctor: '_Tuple2', _0: _p17 - 2, _1: _p18}
+					},
 					_1: {
 						ctor: '::',
-						_0: $long,
+						_0: {
+							ctor: '_Tuple2',
+							_0: {ctor: '_Tuple2', _0: _p17, _1: _p18 + 1},
+							_1: {ctor: '_Tuple2', _0: _p17, _1: _p18 + 2}
+						},
 						_1: {
 							ctor: '::',
-							_0: mid,
-							_1: {
-								ctor: '::',
-								_0: $long,
-								_1: {
-									ctor: '::',
-									_0: $short,
-									_1: {
-										ctor: '::',
-										_0: $short,
-										_1: {ctor: '[]'}
-									}
-								}
-							}
+							_0: {
+								ctor: '_Tuple2',
+								_0: {ctor: '_Tuple2', _0: _p17 + 1, _1: _p18},
+								_1: {ctor: '_Tuple2', _0: _p17 + 2, _1: _p18}
+							},
+							_1: {ctor: '[]'}
 						}
 					}
 				}
-			}));
-}();
-var _user$project$PegLogic$target = function () {
-	var $long = A2(
-		_elm_lang$core$Array$initialize,
-		7,
-		_elm_lang$core$Basics$always(_user$project$PegLogic$Empty));
-	var mid = A3(_elm_lang$core$Array$set, 3, _user$project$PegLogic$Peg, $long);
-	var $short = _elm_lang$core$Array$fromList(
-		{
-			ctor: '::',
-			_0: _user$project$PegLogic$None,
-			_1: {
-				ctor: '::',
-				_0: _user$project$PegLogic$None,
-				_1: {
-					ctor: '::',
-					_0: _user$project$PegLogic$Empty,
-					_1: {
-						ctor: '::',
-						_0: _user$project$PegLogic$Empty,
-						_1: {
-							ctor: '::',
-							_0: _user$project$PegLogic$Empty,
-							_1: {
-								ctor: '::',
-								_0: _user$project$PegLogic$None,
-								_1: {
-									ctor: '::',
-									_0: _user$project$PegLogic$None,
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					}
-				}
-			}
-		});
-	return _user$project$PegLogic$Board(
-		_elm_lang$core$Array$fromList(
-			{
-				ctor: '::',
-				_0: $short,
-				_1: {
-					ctor: '::',
-					_0: $short,
-					_1: {
-						ctor: '::',
-						_0: $long,
-						_1: {
-							ctor: '::',
-							_0: mid,
-							_1: {
-								ctor: '::',
-								_0: $long,
-								_1: {
-									ctor: '::',
-									_0: $short,
-									_1: {
-										ctor: '::',
-										_0: $short,
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						}
-					}
-				}
-			}));
-}();
-var _user$project$PegLogic$initializeGame = function (_p26) {
-	return {ctor: '_Tuple2', _0: _user$project$PegLogic$start, _1: _user$project$PegLogic$target};
-};
-var _user$project$PegLogic$setSpace = F3(
-	function (_p28, s, _p27) {
-		var _p29 = _p28;
-		var _p32 = _p29._0;
-		var _p30 = _p27;
-		var _p31 = _p30._0;
-		return _user$project$PegLogic$Board(
-			A3(
-				_elm_lang$core$Array$set,
-				_p32,
-				A3(
-					_elm_lang$core$Array$set,
-					_p29._1,
-					s,
-					A2(_user$project$PegLogic$fget, _p32, _p31)),
-				_p31));
+			});
 	});
-var _user$project$PegLogic$clear = F2(
-	function (loc, board) {
-		return A3(_user$project$PegLogic$setSpace, loc, _user$project$PegLogic$Empty, board);
+var _user$project$PegLogic$selectPeg = F2(
+	function (loc, game) {
+		var board = game.board;
+		var boardNew = _elm_lang$core$Native_Utils.update(
+			board,
+			{
+				pegSelected: _elm_lang$core$Maybe$Just(loc),
+				validMoves: A2(_user$project$PegLogic$getValidMoves, loc, game.board.grid)
+			});
+		return _elm_lang$core$Native_Utils.update(
+			game,
+			{board: boardNew});
 	});
 var _user$project$PegLogic$putPeg = F2(
-	function (loc, board) {
-		return A3(_user$project$PegLogic$setSpace, loc, _user$project$PegLogic$Peg, board);
+	function (loc, grid) {
+		return A3(_user$project$PegLogic$setSpace, loc, _user$project$PegLogic$Peg, grid);
 	});
+var _user$project$PegLogic$initGame = function (n) {
+	var targetLoc = _user$project$PegLogic$getLoc(n);
+	var grid = A2(_user$project$PegLogic$clear, targetLoc, _user$project$PegLogic$full);
+	var board = {
+		grid: grid,
+		pegSelected: _elm_lang$core$Maybe$Nothing,
+		validMoves: {ctor: '[]'},
+		targetLoc: targetLoc
+	};
+	return {
+		board: board,
+		target: A2(_user$project$PegLogic$putPeg, targetLoc, _user$project$PegLogic$empty),
+		solved: false,
+		history: {ctor: '[]'},
+		original: board
+	};
+};
 var _user$project$PegLogic$makeMove = F2(
-	function (_p33, board) {
-		var _p34 = _p33;
-		var _p36 = _p34._0;
-		var _p35 = _p34._1;
-		var mid = A2(_user$project$PegLogic$avgLoc, _p36, _p35);
-		return A2(
+	function (_p19, game) {
+		var _p20 = _p19;
+		var board = game.board;
+		var start = function () {
+			var _p21 = game.board.pegSelected;
+			if (_p21.ctor === 'Nothing') {
+				return _elm_lang$core$Native_Utils.crashCase(
+					'PegLogic',
+					{
+						start: {line: 121, column: 13},
+						end: {line: 123, column: 22}
+					},
+					_p21)('makeMove: no peg selected');
+			} else {
+				return _p21._0;
+			}
+		}();
+		var gridNew = A2(
 			_user$project$PegLogic$putPeg,
-			_p35,
+			_p20._1,
 			A2(
 				_user$project$PegLogic$clear,
-				mid,
-				A2(_user$project$PegLogic$clear, _p36, board)));
-	});
-var _user$project$PegApp$init = function () {
-	var _p0 = _user$project$PegLogic$initializeGame(
-		{ctor: '_Tuple0'});
-	var start = _p0._0;
-	var target = _p0._1;
-	return {
-		ctor: '_Tuple2',
-		_0: {
-			board: start,
-			pegSelected: _elm_lang$core$Maybe$Nothing,
-			history: {ctor: '[]'},
-			target: target
-		},
-		_1: _elm_lang$core$Platform_Cmd$none
-	};
-}();
-var _user$project$PegApp$subscriptions = _elm_lang$core$Basics$always(_elm_lang$core$Platform_Sub$none);
-var _user$project$PegApp$circleSelected = _evancz$elm_graphics$Element$toHtml(
-	A3(
-		_evancz$elm_graphics$Collage$collage,
-		40,
-		40,
-		{
-			ctor: '::',
-			_0: A2(
-				_evancz$elm_graphics$Collage$filled,
-				_elm_lang$core$Color$darkRed,
-				_evancz$elm_graphics$Collage$circle(20)),
-			_1: {ctor: '[]'}
-		}));
-var _user$project$PegApp$circlePeg = _evancz$elm_graphics$Element$toHtml(
-	A3(
-		_evancz$elm_graphics$Collage$collage,
-		40,
-		40,
-		{
-			ctor: '::',
-			_0: A2(
-				_evancz$elm_graphics$Collage$filled,
-				_elm_lang$core$Color$lightRed,
-				_evancz$elm_graphics$Collage$circle(20)),
-			_1: {ctor: '[]'}
-		}));
-var _user$project$PegApp$circleEmpty = _evancz$elm_graphics$Element$toHtml(
-	A3(
-		_evancz$elm_graphics$Collage$collage,
-		40,
-		40,
-		{
-			ctor: '::',
-			_0: A2(
-				_evancz$elm_graphics$Collage$filled,
-				_elm_lang$core$Color$black,
-				_evancz$elm_graphics$Collage$circle(10)),
-			_1: {ctor: '[]'}
-		}));
-var _user$project$PegApp$setSelection = F2(
-	function (pegSelected, cells) {
-		var _p1 = pegSelected;
-		if (_p1.ctor === 'Nothing') {
-			return cells;
-		} else {
-			var _p2 = _p1._0._0;
-			return A3(
-				_elm_lang$core$Array$set,
-				_p2,
-				A3(
-					_elm_lang$core$Array$set,
-					_p1._0._1,
-					_user$project$PegApp$circleSelected,
-					A2(_user$project$PegLogic$fget, _p2, cells)),
-				cells);
-		}
-	});
-var _user$project$PegApp$modelMakeMove = F2(
-	function (move, model) {
-		var modelNew = _elm_lang$core$Native_Utils.update(
-			model,
+				_p20._0,
+				A2(_user$project$PegLogic$clear, start, game.board.grid)));
+		var boardNew = _elm_lang$core$Native_Utils.update(
+			board,
 			{
-				board: A2(_user$project$PegLogic$makeMove, move, model.board),
+				grid: gridNew,
 				pegSelected: _elm_lang$core$Maybe$Nothing,
-				history: {ctor: '::', _0: model.board, _1: model.history}
+				validMoves: {ctor: '[]'}
 			});
-		return _elm_lang$core$Native_Utils.eq(modelNew.board, model.target) ? _user$project$PegApp$init : {ctor: '_Tuple2', _0: modelNew, _1: _elm_lang$core$Platform_Cmd$none};
+		return _elm_lang$core$Native_Utils.update(
+			game,
+			{
+				board: boardNew,
+				solved: _elm_lang$core$Native_Utils.eq(gridNew, game.target),
+				history: {ctor: '::', _0: game.board, _1: game.history}
+			});
 	});
-var _user$project$PegApp$modelUndo = function (model) {
-	var _p3 = model.history;
-	if (_p3.ctor === '[]') {
-		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-	} else {
-		var newModel = _elm_lang$core$Native_Utils.update(
-			model,
-			{board: _p3._0, pegSelected: _elm_lang$core$Maybe$Nothing, history: _p3._1});
-		return {ctor: '_Tuple2', _0: newModel, _1: _elm_lang$core$Platform_Cmd$none};
-	}
-};
-var _user$project$PegApp$update = F2(
-	function (msg, model) {
-		var _p4 = {ctor: '_Tuple2', _0: model.pegSelected, _1: msg};
-		switch (_p4._1.ctor) {
-			case 'Noop':
-				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-			case 'Reset':
-				return _user$project$PegApp$init;
-			case 'Undo':
-				return _user$project$PegApp$modelUndo(model);
-			case 'PegSelect':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							pegSelected: _elm_lang$core$Maybe$Just(_p4._1._0)
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			default:
-				if (_p4._0.ctor === 'Nothing') {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				} else {
-					var move = {ctor: '_Tuple2', _0: _p4._0._0, _1: _p4._1._0};
-					return A2(_user$project$PegLogic$validMove, move, model.board) ? A2(_user$project$PegApp$modelMakeMove, move, model) : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
-		}
-	});
-var _user$project$PegApp$Model = F4(
-	function (a, b, c, d) {
-		return {board: a, pegSelected: b, history: c, target: d};
-	});
-var _user$project$PegApp$EmptySelect = function (a) {
-	return {ctor: 'EmptySelect', _0: a};
-};
-var _user$project$PegApp$PegSelect = function (a) {
-	return {ctor: 'PegSelect', _0: a};
-};
-var _user$project$PegApp$spaceCell = F3(
-	function (i, j, s) {
-		var _p5 = s;
-		switch (_p5.ctor) {
-			case 'None':
-				return A2(
-					_elm_lang$html$Html$td,
-					{ctor: '[]'},
-					{ctor: '[]'});
-			case 'Empty':
-				return A2(
-					_elm_lang$html$Html$td,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(
-							_user$project$PegApp$EmptySelect(
-								{ctor: '_Tuple2', _0: i, _1: j})),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _user$project$PegApp$circleEmpty,
-						_1: {ctor: '[]'}
-					});
-			default:
-				return A2(
-					_elm_lang$html$Html$td,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(
-							_user$project$PegApp$PegSelect(
-								{ctor: '_Tuple2', _0: i, _1: j})),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _user$project$PegApp$circlePeg,
-						_1: {ctor: '[]'}
-					});
-		}
-	});
-var _user$project$PegApp$rowCells = F2(
-	function (i, row) {
-		return A2(
-			_elm_lang$core$Array$indexedMap,
-			_user$project$PegApp$spaceCell(i),
-			row);
-	});
-var _user$project$PegApp$tableCells = function (_p6) {
-	var _p7 = _p6;
-	return A2(_elm_lang$core$Array$indexedMap, _user$project$PegApp$rowCells, _p7._0);
-};
-var _user$project$PegApp$tableView = function (model) {
-	var cells = A2(
-		_user$project$PegApp$setSelection,
-		model.pegSelected,
-		_user$project$PegApp$tableCells(model.board));
+var _user$project$PegApp$makeTable = function (cells) {
 	return A2(
 		_elm_lang$html$Html$table,
 		{ctor: '[]'},
 		_elm_lang$core$Array$toList(
 			A2(
 				_elm_lang$core$Array$map,
-				function (_p8) {
+				function (row) {
 					return A2(
 						_elm_lang$html$Html$tr,
 						{ctor: '[]'},
-						_elm_lang$core$Array$toList(_p8));
+						_elm_lang$core$Array$toList(row));
 				},
 				cells)));
 };
-var _user$project$PegApp$Undo = {ctor: 'Undo'};
+var _user$project$PegApp$setMatrix = F3(
+	function (_p0, msg, cells) {
+		var _p1 = _p0;
+		var _p2 = _p1._0;
+		return A3(
+			_elm_lang$core$Array$set,
+			_p2,
+			A3(
+				_elm_lang$core$Array$set,
+				_p1._1,
+				msg,
+				A2(_user$project$PegLogic$fget, _p2, cells)),
+			cells);
+	});
+var _user$project$PegApp$selectedCellTarget = A2(
+	_elm_lang$html$Html$td,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: _evancz$elm_graphics$Element$toHtml(
+			A3(
+				_evancz$elm_graphics$Collage$collage,
+				40,
+				40,
+				{
+					ctor: '::',
+					_0: A2(
+						_evancz$elm_graphics$Collage$filled,
+						_elm_lang$core$Color$lightGreen,
+						_evancz$elm_graphics$Collage$circle(20)),
+					_1: {ctor: '[]'}
+				})),
+		_1: {ctor: '[]'}
+	});
+var _user$project$PegApp$emptyCellTarget = A2(
+	_elm_lang$html$Html$td,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: _evancz$elm_graphics$Element$toHtml(
+			A3(
+				_evancz$elm_graphics$Collage$collage,
+				40,
+				40,
+				{
+					ctor: '::',
+					_0: A2(
+						_evancz$elm_graphics$Collage$filled,
+						_elm_lang$core$Color$darkGreen,
+						_evancz$elm_graphics$Collage$circle(10)),
+					_1: {ctor: '[]'}
+				})),
+		_1: {ctor: '[]'}
+	});
+var _user$project$PegApp$findMove = F2(
+	function (loc, moves) {
+		findMove:
+		while (true) {
+			var _p3 = moves;
+			if (_p3.ctor === '[]') {
+				return _elm_lang$core$Maybe$Nothing;
+			} else {
+				var _p4 = _p3._0;
+				if (_elm_lang$core$Native_Utils.eq(
+					_elm_lang$core$Tuple$second(_p4),
+					loc)) {
+					return _elm_lang$core$Maybe$Just(_p4);
+				} else {
+					var _v2 = loc,
+						_v3 = _p3._1;
+					loc = _v2;
+					moves = _v3;
+					continue findMove;
+				}
+			}
+		}
+	});
+var _user$project$PegApp$selectedCell = A2(
+	_elm_lang$html$Html$td,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: _evancz$elm_graphics$Element$toHtml(
+			A3(
+				_evancz$elm_graphics$Collage$collage,
+				40,
+				40,
+				{
+					ctor: '::',
+					_0: A2(
+						_evancz$elm_graphics$Collage$filled,
+						_elm_lang$core$Color$lightRed,
+						_evancz$elm_graphics$Collage$circle(20)),
+					_1: {ctor: '[]'}
+				})),
+		_1: {ctor: '[]'}
+	});
+var _user$project$PegApp$showSelection = F2(
+	function (maybeLoc, cells) {
+		var _p5 = maybeLoc;
+		if (_p5.ctor === 'Nothing') {
+			return cells;
+		} else {
+			return A3(_user$project$PegApp$setMatrix, _p5._0, _user$project$PegApp$selectedCell, cells);
+		}
+	});
+var _user$project$PegApp$emptyCell = A2(
+	_elm_lang$html$Html$td,
+	{ctor: '[]'},
+	{
+		ctor: '::',
+		_0: _evancz$elm_graphics$Element$toHtml(
+			A3(
+				_evancz$elm_graphics$Collage$collage,
+				40,
+				40,
+				{
+					ctor: '::',
+					_0: A2(
+						_evancz$elm_graphics$Collage$filled,
+						_elm_lang$core$Color$black,
+						_evancz$elm_graphics$Collage$circle(10)),
+					_1: {ctor: '[]'}
+				})),
+		_1: {ctor: '[]'}
+	});
+var _user$project$PegApp$blankCell = A2(
+	_elm_lang$html$Html$td,
+	{ctor: '[]'},
+	{ctor: '[]'});
+var _user$project$PegApp$Model = F2(
+	function (a, b) {
+		return {game: a, rules: b};
+	});
+var _user$project$PegApp$Rules = {ctor: 'Rules'};
 var _user$project$PegApp$Reset = {ctor: 'Reset'};
+var _user$project$PegApp$Undo = {ctor: 'Undo'};
+var _user$project$PegApp$SelectMove = function (a) {
+	return {ctor: 'SelectMove', _0: a};
+};
+var _user$project$PegApp$moveCell = function (move) {
+	return A2(
+		_elm_lang$html$Html$td,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onClick(
+				_user$project$PegApp$SelectMove(move)),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _evancz$elm_graphics$Element$toHtml(
+				A3(
+					_evancz$elm_graphics$Collage$collage,
+					40,
+					40,
+					{
+						ctor: '::',
+						_0: A2(
+							_evancz$elm_graphics$Collage$filled,
+							_elm_lang$core$Color$grey,
+							_evancz$elm_graphics$Collage$circle(10)),
+						_1: {ctor: '[]'}
+					})),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$PegApp$showMove = F2(
+	function (move, cells) {
+		var loc = _elm_lang$core$Tuple$second(move);
+		return A3(
+			_user$project$PegApp$setMatrix,
+			loc,
+			_user$project$PegApp$moveCell(move),
+			cells);
+	});
+var _user$project$PegApp$showMoves = F2(
+	function (moves, cells) {
+		showMoves:
+		while (true) {
+			var _p6 = moves;
+			if (_p6.ctor === '[]') {
+				return cells;
+			} else {
+				var _v6 = _p6._1,
+					_v7 = A2(_user$project$PegApp$showMove, _p6._0, cells);
+				moves = _v6;
+				cells = _v7;
+				continue showMoves;
+			}
+		}
+	});
+var _user$project$PegApp$moveCellTarget = function (move) {
+	return A2(
+		_elm_lang$html$Html$td,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onClick(
+				_user$project$PegApp$SelectMove(move)),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _evancz$elm_graphics$Element$toHtml(
+				A3(
+					_evancz$elm_graphics$Collage$collage,
+					40,
+					40,
+					{
+						ctor: '::',
+						_0: A2(
+							_evancz$elm_graphics$Collage$filled,
+							_elm_lang$core$Color$lightGreen,
+							_evancz$elm_graphics$Collage$circle(10)),
+						_1: {ctor: '[]'}
+					})),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$PegApp$SelectPeg = function (a) {
+	return {ctor: 'SelectPeg', _0: a};
+};
+var _user$project$PegApp$pegCell = function (loc) {
+	return A2(
+		_elm_lang$html$Html$td,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onClick(
+				_user$project$PegApp$SelectPeg(loc)),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _evancz$elm_graphics$Element$toHtml(
+				A3(
+					_evancz$elm_graphics$Collage$collage,
+					40,
+					40,
+					{
+						ctor: '::',
+						_0: A2(
+							_evancz$elm_graphics$Collage$filled,
+							_elm_lang$core$Color$darkRed,
+							_evancz$elm_graphics$Collage$circle(20)),
+						_1: {ctor: '[]'}
+					})),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$PegApp$getCell = F2(
+	function (loc, s) {
+		var _p7 = s;
+		switch (_p7.ctor) {
+			case 'None':
+				return _user$project$PegApp$blankCell;
+			case 'Empty':
+				return _user$project$PegApp$emptyCell;
+			default:
+				return _user$project$PegApp$pegCell(loc);
+		}
+	});
+var _user$project$PegApp$getCells = function (grid) {
+	var rowMap = F2(
+		function (x, row) {
+			return A2(
+				_elm_lang$core$Array$indexedMap,
+				F2(
+					function (y, s) {
+						return A2(
+							_user$project$PegApp$getCell,
+							{ctor: '_Tuple2', _0: x, _1: y},
+							s);
+					}),
+				row);
+		});
+	return A2(_elm_lang$core$Array$indexedMap, rowMap, grid);
+};
+var _user$project$PegApp$pegCellTarget = function (loc) {
+	return A2(
+		_elm_lang$html$Html$td,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onClick(
+				_user$project$PegApp$SelectPeg(loc)),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _evancz$elm_graphics$Element$toHtml(
+				A3(
+					_evancz$elm_graphics$Collage$collage,
+					40,
+					40,
+					{
+						ctor: '::',
+						_0: A2(
+							_evancz$elm_graphics$Collage$filled,
+							_elm_lang$core$Color$darkGreen,
+							_evancz$elm_graphics$Collage$circle(20)),
+						_1: {ctor: '[]'}
+					})),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$PegApp$showTarget = F2(
+	function (board, cells) {
+		var moves = board.validMoves;
+		var pegMaybe = board.pegSelected;
+		var loc = board.targetLoc;
+		var _p8 = A2(_user$project$PegApp$findMove, loc, moves);
+		if (_p8.ctor === 'Just') {
+			return A3(
+				_user$project$PegApp$setMatrix,
+				loc,
+				_user$project$PegApp$moveCellTarget(_p8._0),
+				cells);
+		} else {
+			var markNormalTarget = function (_p9) {
+				var _p10 = _p9;
+				var _p11 = A2(_user$project$PegLogic$getSpace, loc, board.grid);
+				switch (_p11.ctor) {
+					case 'None':
+						return _elm_lang$core$Native_Utils.crashCase(
+							'PegApp',
+							{
+								start: {line: 128, column: 13},
+								end: {line: 131, column: 63}
+							},
+							_p11)('showTarget: invalid location');
+					case 'Empty':
+						return A3(_user$project$PegApp$setMatrix, loc, _user$project$PegApp$emptyCellTarget, cells);
+					default:
+						return A3(
+							_user$project$PegApp$setMatrix,
+							loc,
+							_user$project$PegApp$pegCellTarget(loc),
+							cells);
+				}
+			};
+			var _p13 = pegMaybe;
+			if (_p13.ctor === 'Just') {
+				return _elm_lang$core$Native_Utils.eq(_p13._0, loc) ? A3(_user$project$PegApp$setMatrix, loc, _user$project$PegApp$selectedCellTarget, cells) : markNormalTarget(
+					{ctor: '_Tuple0'});
+			} else {
+				return markNormalTarget(
+					{ctor: '_Tuple0'});
+			}
+		}
+	});
+var _user$project$PegApp$viewBoard = function (board) {
+	return _user$project$PegApp$makeTable(
+		A2(
+			_user$project$PegApp$showTarget,
+			board,
+			A2(
+				_user$project$PegApp$showMoves,
+				board.validMoves,
+				A2(
+					_user$project$PegApp$showSelection,
+					board.pegSelected,
+					_user$project$PegApp$getCells(board.grid)))));
+};
+var _user$project$PegApp$CreateGame = function (a) {
+	return {ctor: 'CreateGame', _0: a};
+};
+var _user$project$PegApp$initRandom = A2(
+	_elm_lang$core$Random$generate,
+	function (n) {
+		return _user$project$PegApp$CreateGame(n);
+	},
+	A2(_elm_lang$core$Random$int, 0, 32));
+var _user$project$PegApp$update = F2(
+	function (msg, model) {
+		var _p14 = msg;
+		switch (_p14.ctor) {
+			case 'NewGame':
+				return {ctor: '_Tuple2', _0: model, _1: _user$project$PegApp$initRandom};
+			case 'CreateGame':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							game: _user$project$PegLogic$initGame(_p14._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SelectPeg':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							game: A2(_user$project$PegLogic$selectPeg, _p14._0, model.game)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SelectMove':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							game: A2(_user$project$PegLogic$makeMove, _p14._0, model.game)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'Undo':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							game: _user$project$PegLogic$undoMove(model.game)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'Reset':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							game: _user$project$PegLogic$resetGame(model.game)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{rules: !model.rules}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+		}
+	});
+var _user$project$PegApp$init = {
+	ctor: '_Tuple2',
+	_0: {
+		game: _user$project$PegLogic$initGame(16),
+		rules: false
+	},
+	_1: _user$project$PegApp$initRandom
+};
+var _user$project$PegApp$NewGame = {ctor: 'NewGame'};
 var _user$project$PegApp$view = function (model) {
 	var style = _elm_lang$html$Html_Attributes$style(
 		{
@@ -12217,16 +12525,16 @@ var _user$project$PegApp$view = function (model) {
 				}
 			}
 		});
-	var undoButton = A2(
+	var rulesButton = A2(
 		_elm_lang$html$Html$button,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Events$onClick(_user$project$PegApp$Undo),
+			_0: _elm_lang$html$Html_Events$onClick(_user$project$PegApp$Rules),
 			_1: {ctor: '[]'}
 		},
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html$text('Undo'),
+			_0: _elm_lang$html$Html$text('show rules'),
 			_1: {ctor: '[]'}
 		});
 	var resetButton = A2(
@@ -12238,11 +12546,35 @@ var _user$project$PegApp$view = function (model) {
 		},
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html$text('Reset'),
+			_0: _elm_lang$html$Html$text('reset'),
 			_1: {ctor: '[]'}
 		});
-	var table = _user$project$PegApp$tableView(model);
-	return A2(
+	var undoButton = A2(
+		_elm_lang$html$Html$button,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onClick(_user$project$PegApp$Undo),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text('undo'),
+			_1: {ctor: '[]'}
+		});
+	var newGameButton = A2(
+		_elm_lang$html$Html$button,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onClick(_user$project$PegApp$NewGame),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text('new game'),
+			_1: {ctor: '[]'}
+		});
+	var boardView = _user$project$PegApp$viewBoard(model.game.board);
+	var gameView = A2(
 		_elm_lang$html$Html$div,
 		{
 			ctor: '::',
@@ -12251,21 +12583,34 @@ var _user$project$PegApp$view = function (model) {
 		},
 		{
 			ctor: '::',
-			_0: table,
+			_0: undoButton,
 			_1: {
 				ctor: '::',
 				_0: resetButton,
 				_1: {
 					ctor: '::',
-					_0: undoButton,
-					_1: {ctor: '[]'}
+					_0: newGameButton,
+					_1: {
+						ctor: '::',
+						_0: rulesButton,
+						_1: {
+							ctor: '::',
+							_0: boardView,
+							_1: {ctor: '[]'}
+						}
+					}
 				}
 			}
 		});
+	return gameView;
 };
 var _user$project$PegApp$main = _elm_lang$html$Html$program(
-	{init: _user$project$PegApp$init, view: _user$project$PegApp$view, update: _user$project$PegApp$update, subscriptions: _user$project$PegApp$subscriptions})();
-var _user$project$PegApp$Noop = {ctor: 'Noop'};
+	{
+		init: _user$project$PegApp$init,
+		view: _user$project$PegApp$view,
+		update: _user$project$PegApp$update,
+		subscriptions: _elm_lang$core$Basics$always(_elm_lang$core$Platform_Sub$none)
+	})();
 var Elm = {};
 Elm['PegApp'] = Elm['PegApp'] || {};
 if (typeof _user$project$PegApp$main !== 'undefined') {
