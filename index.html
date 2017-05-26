@@ -12208,7 +12208,7 @@ var _user$project$PegApp$blankCell = A2(
 	{ctor: '[]'},
 	{ctor: '[]'});
 var _user$project$PegApp$rules = function () {
-	var txt = _elm_lang$html$Html$text('\n        Welcome to Peg Solitaire! This is a single player puzzle. Pieces on the board,\n        or pegs, are marked with large red circles, and smaller black circles\n        indicate empty spaces. Pegs can jump over adjacent pegs into empty spots,\n        thereby clearing the jumped peg. The objective of the game is to\n        clear the board, except for a single peg in the spot circled black (i.e. the\n        original empty space). This spot remains marked throughout the game for easy\n        reference. To make a move, select a peg by clicking on it. The empty spaces\n        into which the selected peg may be jumped are shown in grey. Click one of\n        these in order to make your move. Good luck!\n        ');
+	var txt = _elm_lang$html$Html$text('\n        Welcome to Peg Solitaire! This is a single player puzzle. Pieces on the board,\n        or pegs, are marked with red circles, and black circles\n        indicate empty spaces. Pegs can jump over adjacent pegs into empty spots,\n        thereby clearing the jumped peg. The objective of the game is to\n        clear the board, except for a single peg in the spot marked by a black\n        circular border (i.e. the original empty space).\n        This spot remains marked throughout the game for easy\n        reference. To make a move, select a peg by clicking on it. The empty spaces\n        into which the selected peg may be jumped are shown in grey. Click one of\n        these in order to make your move. Good luck!\n        ');
 	var style = _elm_lang$html$Html_Attributes$style(
 		{
 			ctor: '::',
@@ -12458,8 +12458,8 @@ var _user$project$PegApp$showTarget = F2(
 						return _elm_lang$core$Native_Utils.crashCase(
 							'PegApp',
 							{
-								start: {line: 163, column: 13},
-								end: {line: 166, column: 63}
+								start: {line: 164, column: 13},
+								end: {line: 167, column: 63}
 							},
 							_p11)('showTarget: invalid location');
 					case 'Empty':

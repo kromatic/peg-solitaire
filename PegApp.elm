@@ -61,11 +61,12 @@ rules =
       Html.text <|
         """
         Welcome to Peg Solitaire! This is a single player puzzle. Pieces on the board,
-        or pegs, are marked with large red circles, and smaller black circles
+        or pegs, are marked with red circles, and black circles
         indicate empty spaces. Pegs can jump over adjacent pegs into empty spots,
         thereby clearing the jumped peg. The objective of the game is to
-        clear the board, except for a single peg in the spot circled black (i.e. the
-        original empty space). This spot remains marked throughout the game for easy
+        clear the board, except for a single peg in the spot marked by a black
+        circular border (i.e. the original empty space).
+        This spot remains marked throughout the game for easy
         reference. To make a move, select a peg by clicking on it. The empty spaces
         into which the selected peg may be jumped are shown in grey. Click one of
         these in order to make your move. Good luck!
